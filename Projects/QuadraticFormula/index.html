@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles2.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <title>Quadratic Formula Solver</title>
+</head>
+<body>
+    <h1>Quadratic Formula Solver</h1>
+    <main>
+            <p>
+                The quadratic formula: \( x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} \)
+            </p>
+            <label>
+                a:
+                <input type="number" name="a" value = "1">
+            </label>
+            <label>
+                b:
+                <input type="number" name="b" value = "0">
+            </label>
+            <label>
+                c:
+                <input type="number" name="c" value = "-1">
+            </label>
+            <br>
+            <br>
+            <button id = "solveButton" name = "submit" class = "button">
+                Solve
+            </button>
+            <p class = "work" id = "work"></p>
+            <p class="answer" id = "answer"></p>
+            <script>
+                document.getElementById("solveButton").addEventListener("click", solve => {
+                    let a = Number(document.getElementsByName("a")[0].value);
+                    let b = Number(document.getElementsByName("b")[0].value);
+                    let c = Number(document.getElementsByName("c")[0].value);
+                    
+                    let discriminant = b**2 - 4*a*c;
+                    if (discriminant < 0){
+                        alert("imaginary answer, please try again");
+                        return;
+                    }
+
+                    let obj_answer = document.getElementById("answer");
+                    let obj_work = document.getElementById("work");
+
+                    function joinSpacer(spacer, ...strings){
+                        let output = "";
+                        for(const string of strings){
+                            output = output + string + spacer;
+                        }
+                        return output.slice(0, -2);
+                    }
+
+                    work1 = `\\( x = \\frac{-(${b}) \\pm \\sqrt{(${b})^2 - 4⋅(${a})⋅(${c})}}{2⋅(${a})} \\)`;
+                    work2 = `\\( x = \\frac{${-b} \\pm \\sqrt{${b**2} - ${4*a*c}}}{${2*a}} \\)`
+                    work3 = `\\( x = \\frac{${-b} \\pm \\sqrt{${b**2 - 4*a*c}}}{${2*a}} \\)`
+                    work4 = `\\( x = \\frac{${-b} \\pm ${Math.sqrt(b**2 - 4*a*c)}}{${2*a}} \\)`
+                    work5 = `\\( x = \\frac{${-b} + ${Math.sqrt(b**2 - 4*a*c)}}{${2*a}} \\)`
+                    work6 = `\\( x = \\frac{${-b} - ${Math.sqrt(b**2 - 4*a*c)}}{${2*a}} \\)`
+                    obj_work.innerHTML = joinSpacer("<br>", work1, work2, work3, work4, work5, work6)
+                    if (window.MathJax) {
+                        MathJax.typesetPromise([obj_work]);
+                    }
+
+                    if(discriminant == 0){
+                        obj_answer.innerText = `x = ${(-b)/(2*a)}`;
+                        return;
+                    }
+
+                    obj_answer.innerText = `x = ${(-b + Math.sqrt(discriminant))/(2*a)} or x = ${(-b - Math.sqrt(discriminant))/(2*a)}`;
+                });
+            </script>
+    </main>
+</body>
+</html>

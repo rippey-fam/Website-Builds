@@ -1,0 +1,121 @@
+body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+main {
+    background: #fff;
+    max-width: 420px;
+    margin: 48px auto 0 auto;
+    padding: 32px 32px 24px 32px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(60, 60, 120, 0.12), 0 1.5px 6px rgba(0,0,0,0.04);
+}
+
+h1 {
+    color: #4f378b;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 28px;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+p {
+    color: #3b3b3b;
+    font-size: 1.1rem;
+    margin: 18px auto 18px auto;
+    max-width: 600px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #4f378b;
+    margin-bottom: 12px;
+    margin-left: 10px;
+}
+
+input[type="number"] {
+    width: 70px;
+    padding: 7px 10px;
+    border: 1.5px solid #bdb4fe;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-left: 8px;
+    background: #f5f3ff;
+    color: #3b3b3b;
+}
+input[type="number"]:focus {
+    border: 1.5px solid #7c3aed;
+    box-shadow: 0 0 0 2px #c7d2fe;
+}
+
+.button {
+    display: block;
+    width: 100%;
+    background: linear-gradient(90deg, #7c3aed 0%, #f472b6 100%);
+    color: #fff;
+    padding: 14px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 28px 0 10px 0;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+    transition: background 0.2s, transform 0.1s;
+}
+.button:hover {
+    background: linear-gradient(90deg, #a21caf 0%, #f472b6 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.answer {
+    color: #a21caf;
+    font-size: 1.25rem;
+    text-align: center;
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin-top: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.work {
+    color: #4f378b;
+    font-size: 1rem;
+    text-align: center;
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin-top: 10px;
+    margin-bottom: 0;
+    background: #f3f0ff;
+    border-radius: 8px;
+    padding: 12px 8px;
+    box-shadow: 0 1px 4px rgba(124,58,237,0.04);
+    word-break: break-word;
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 18px 4vw 14px 4vw;
+        max-width: 98vw;
+    }
+    h1 {
+        font-size: 1.3rem;
+    }
+    .button {
+        font-size: 1rem;
+        padding: 12px 0;
+    }
+}
