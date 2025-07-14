@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Getting data about the event</title>
+  <style>
+    body {
+      margin: 2rem;
+      font-size: 5rem;
+    }
+
+    div {
+      margin-top: .5em;
+    }
+
+    .box {
+      border: none;
+      width: auto;
+      display: inline-flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .sentence {
+        border: none;
+        width: auto;
+        display: inline-block;
+        cursor: pointer;
+        margin-right: 3rem;
+    }
+
+    .box p.letter{
+        display: inherit;
+        border-bottom: 3px solid black;
+        margin: 0;
+    }
+
+    div.box:hover p.letter{
+      background-color: rgb(127, 196, 127);
+    }
+
+    div.box:focus p.letter{
+        border: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+    <script>
+        const string = "Secret Code".toUpperCase();
+        const objects = [];
+        const body = document.body
+        let sentence = document.createElement("div")
+        sentence.setAttribute("class", "sentence")
+        for(let i = 0; i < string.length; i++){
+            if(string[i] === " "){
+                body.append(sentence)
+                sentence = document.createElement("div")
+                sentence.setAttribute("class", "sentence")
+            }else{
+                let div = document.createElement("div")
+                let letter = document.createElement("p")
+                let codeLetter = document.createElement("p")
+                div.append(letter)
+                div.append(codeLetter)
+                letter.innerHTML = string[i]
+                codeLetter.innerHTML = "X"
+                letter.setAttribute("class", "letter")
+                div.setAttribute("class", "box")
+                div.setAttribute("tabindex", "0")
+                sentence.append(div)
+            }
+            body.append(sentence)
+        }
+    </script>
+    <script>
+        document.addEventListener('keypress', function(e) {
+        const input = document.querySelector('div.box:focus p');
+        input.innerHTML = e.key.toUpperCase();
+        });
+    </script>
+</body>
+
+</html>
