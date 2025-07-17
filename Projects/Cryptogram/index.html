@@ -2,15 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Getting data about the event</title>
+  <title>Cryptogram</title>
   <style>
     body {
       margin: 2rem;
+      margin-top: 0px;
       font-size: 5rem;
+    }
+
+    main {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
 
     div {
       margin-top: .5em;
+    }
+
+    h3 {
+      margin: 0px;
+      display: flex;
+      justify-content: center;
     }
 
     .box {
@@ -29,54 +42,87 @@
         margin-right: 3rem;
     }
 
-    .box p.letter{
+    .box p.letter {
+        text-align: center;
         display: inherit;
         border-bottom: 3px solid black;
-        margin: 0;
     }
 
-    div.box:hover p.letter{
+    .box p {
+      margin: 0;
+    }
+
+    .box p.letter:hover {
       background-color: rgb(127, 196, 127);
     }
 
-    div.box:focus p.letter{
-        border: 1px solid black;
+    .sameCode {
+      background-color: rgb(187, 245, 187);
+    }
+
+    .box:focus p.letter {
+        border: 2px solid black;
     }
   </style>
 </head>
 
 <body>
+    <h3>Cryptogram</h3>
+    <main></main>
     <script>
         const string = "Secret Code".toUpperCase();
         const objects = [];
-        const body = document.body
-        let sentence = document.createElement("div")
-        sentence.setAttribute("class", "sentence")
+        const main = document.getElementsByTagName("main")[0]
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let sentence = document.createElement("div");
+        sentence.setAttribute("class", "sentence");
         for(let i = 0; i < string.length; i++){
             if(string[i] === " "){
-                body.append(sentence)
+                main.append(sentence)
                 sentence = document.createElement("div")
                 sentence.setAttribute("class", "sentence")
             }else{
-                let div = document.createElement("div")
-                let letter = document.createElement("p")
-                let codeLetter = document.createElement("p")
-                div.append(letter)
-                div.append(codeLetter)
-                letter.innerHTML = string[i]
-                codeLetter.innerHTML = "X"
-                letter.setAttribute("class", "letter")
-                div.setAttribute("class", "box")
-                div.setAttribute("tabindex", "0")
+                let div = document.createElement("div");
+                let letter = document.createElement("p");
+                let codeLetter = document.createElement("p");
+                div.append(letter);
+                div.append(codeLetter);
+                letter.innerHTML = string[i];
+                letter.addEventListener("mouseenter", (e)=>{
+                  let codes = document.querySelectorAll('div.box p:last-child');
+                  for(let i = 0; i < codes.length; i++){
+                    if(e.target.nextElementSibling.innerText === codes[i].innerText){
+                      codes[i].previousElementSibling.classList.add("sameCode")
+                    }
+                  }
+                })
+                letter.addEventListener("mouseleave", (e)=>{
+                  let codes = document.querySelectorAll('div.box p:first-child');
+                  for(let i = 0; i < codes.length; i++){
+                    codes[i].classList.remove("sameCode")
+                  }
+                })
+                codeLetter.innerHTML = alphabet[Math.floor(Math.random()*alphabet.length)];
+                letter.setAttribute("class", "letter");
+                div.setAttribute("class", "box");
+                div.setAttribute("tabindex", "0");
                 sentence.append(div)
             }
-            body.append(sentence)
+            main.append(sentence)
         }
     </script>
     <script>
         document.addEventListener('keypress', function(e) {
         const input = document.querySelector('div.box:focus p');
+        const selectedP = document.querySelector("div.box:focus");
+        const otherP = document.querySelectorAll("div.box");
         input.innerHTML = e.key.toUpperCase();
+        for(let i = 0; i < otherP.length; i++){
+          if(otherP[i] === selectedP){
+            if(i != (otherP.length-1))
+            otherP[i+1].focus();
+          }
+        }
         });
     </script>
 </body>
