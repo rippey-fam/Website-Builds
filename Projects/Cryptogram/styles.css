@@ -1,23 +1,25 @@
 body {
     margin: 2rem;
     margin-top: 0px;
-    font-size: 5rem;
 }
 
 main {
+    border: 3px double black;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    flex-wrap: wrap;
+    font-size: 4rem;
 }
 
 div {
     margin-top: .5em;
 }
 
-h3 {
+h1 {
     margin: 0px;
-    display: flex;
-    justify-content: center;
+    text-align: center;
+    font-size: 3rem;
 }
 
 .box {
@@ -33,17 +35,17 @@ h3 {
     width: auto;
     display: inline-block;
     cursor: pointer;
-    margin-right: 3rem;
+    margin: 1rem 1rem;
 }
 
 .box p.letter {
-    text-align: center;
-    display: inherit;
+    display: inline;
     border-bottom: 3px solid black;
 }
 
 .box p {
     margin: 0;
+    text-align: center;
 }
 
 .box p.letter:hover {
@@ -52,6 +54,10 @@ h3 {
 
 .sameCode {
     background-color: rgb(187, 245, 187);
+}
+
+.sameLetter {
+    border: 1px solid gray;
 }
 
 .box:focus p.letter {
