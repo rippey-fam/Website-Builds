@@ -1,6 +1,5 @@
 body {
-    margin: 2rem;
-    margin-top: 0px;
+    margin: 0 2rem;
 }
 
 main {
@@ -62,4 +61,76 @@ h1 {
 
 .box:focus p.letter {
     border: 2px solid black;
+}
+
+.restart {
+    background: #30d6ff;
+    color: #155a7c;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 2em;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    margin: 0.5em;
+}
+
+.newgame {
+    background: #0cfc7c;
+    color: #176c3a;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 2em;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.15);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    margin: 0.5em;
+}
+
+.restart:hover,
+.newgame:hover {
+    box-shadow: 0 6px 18px rgba(30, 144, 255, 0.18), 0 2px 8px rgba(46, 204, 113, 0.18);
+    transform: translateY(-3px) scale(1.04);
+}
+
+.restart:active,
+.newgame:active {
+    box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15), 0 2px 8px rgba(46, 204, 113, 0.15);
+    transform: translateY(0);
+}
+
+.buttonHolder {
+    display: flex;
+    justify-content: center;
+}
+
+.winScreen {
+    background-color: rgba(16, 161, 0, 0.449);
+    position: relative;
+}
+
+.winTextHidden {
+    display: none;
+}
+.winTextVisible {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    text-align: center;
+    font-size: 5rem;
+    font-weight: bold;
+    color: white;
+    justify-content: center;
+    text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000;
 }

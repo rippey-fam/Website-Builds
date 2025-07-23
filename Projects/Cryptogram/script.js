@@ -1,4 +1,22 @@
-let puzzles = ["Foo Bar Baz Testing Testing One Two Three Hello World", "heLLO its a LemOncHeLLO"].sort((a, b) => Math.random() - 0.5)
+let puzzles = [
+  "tO bE Or nOt tO bE",
+  "mAy thE fOrCe bE With yOu",
+  "i hAvE a dReAm",
+  "thErE iS nO pLaCe liKe hOmE",
+  "tO iNfiniTy aNd bEyOnD",
+  "juSt kEEp sWiMMinG",
+  "hOuStOn wE hAvE a prObLeM",
+  "i aM yOur fAthEr",
+  "fOur scOrE aNd sEvEn yEaRs aGo",
+  "lOvE yOur nEiGhbOr aS yOurSeLf",
+  "dO uNtO oThErS aS yOu wOuLd hAvE tHeM dO uNtO yOu",
+  "thE lOrD iS mY shEphErD",
+  "fEaR nOt fOr i aM With yOu",
+  "oNe sMaLl sTeP fOr mAn",
+  "bEtTeR lAtE thAn nEvEr",
+  "pRaCtiCe mAkEs pErFeCt",
+  "lOoK bEfOrE yOu lEaP"
+].sort((a, b) => Math.random() - 0.5)
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 let randomAlphabet;
 const alphabetMapping = new Array(alphabet.length)
@@ -11,8 +29,8 @@ function findAlphabetNum(letter) {
             return j
         }
     }
+    return null
 }
-
 
 function generateCryptogram(code) {
     let main = document.createElement("main")
@@ -66,17 +84,20 @@ function generateCryptogram(code) {
         }
         main.append(sentence)
     }
-    document.body.appendChild(main);
+    document.body.insertBefore(main, document.getElementsByClassName("buttonHolder")[0]);
 }
 function addListeners() {
     document.addEventListener('keypress', function (e) {
         const input = document.querySelector('div.box:focus p');
         const selectedP = document.querySelector("div.box:focus");
         const otherP = document.querySelectorAll("div.box");
-        input.innerHTML = e.key.toUpperCase();
-        if (input.innerHTML === " ") {
-            input.innerHTML = "-"
+        const main = document.getElementsByTagName("main")[0]
+        let keyToUse = e.key.toUpperCase()
+        if (findAlphabetNum(keyToUse) === null) {
+            keyToUse = "-"
         }
+        console.log(keyToUse)
+        input.innerHTML = keyToUse
         for (let i = 0; i < otherP.length; i++) {
             if (otherP[i] === selectedP) {
                 if (i != (otherP.length - 1)) {
@@ -97,8 +118,20 @@ function addListeners() {
         let codes = document.querySelectorAll('div.box p:last-child');
         for (let i = 0; i < codes.length; i++) {
             if (selectedP.lastElementChild.innerText === codes[i].innerText) {
-                codes[i].previousElementSibling.innerHTML = e.key.toUpperCase();
+                codes[i].previousElementSibling.innerHTML = keyToUse;
             }
+        }
+        let currentlySolvedCode = []
+        for(let sentence of main.childNodes){
+            let word = []
+            for(let letterDiv of sentence.childNodes){
+                word.push(letterDiv.firstChild.innerHTML)
+            }
+            currentlySolvedCode.push(word.join(""))
+        }
+        currentlySolvedCode = currentlySolvedCode.join(" ")
+        if(currentlySolvedCode === currentPuzzle.toUpperCase()){
+            setTimeout(()=>{winGame()}, 10)
         }
     });
     document.addEventListener("keydown", function (e) {
@@ -142,15 +175,33 @@ function addListeners() {
                 }
             }
         }
-
-        if(e.key === "Escape"){
-            confirm("Make a new puzzle?")
-            newPuzzle()
+        if (e.key === "Backspace") {
+            selectedP.firstElementChild.innerHTML = "-"
+            for (let i = 0; i < otherP.length; i++) {
+                if (otherP[i] === selectedP) {
+                    if (i != 0) {
+                        if (otherP[i - 1].hasAttribute("tabindex")) {
+                            otherP[i - 1].focus()
+                            break
+                        } else {
+                            for (let j = i; j > 1; j--) {
+                                if (otherP[j - 1].hasAttribute("tabindex")) {
+                                    otherP[j - 1].focus()
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     });
 }
 
-function newPuzzle() {
+function newPuzzle(confirmStart) {
+    if (confirmStart && !confirm("Do you really want to start a new puzzle?")) {
+        return
+    }
     document.getElementsByTagName("main")[0].remove()
     if (puzzles.length === 0) {
         puzzles = [...deletedPuzzles]
@@ -165,7 +216,28 @@ function newPuzzle() {
     generateCryptogram(currentPuzzle)
 }
 
+function restartPuzzle() {
+    if (!confirm("Do you really want to reset?")) {
+        return
+    }
+    document.getElementsByTagName("main")[0].remove()
+    console.log(currentPuzzle)
+    console.log("random alphabet: " + randomAlphabet)
+    generateCryptogram(currentPuzzle)
+}
+
+function winGame(){
+    const main = document.getElementsByTagName("main")[0]
+    main.setAttribute("class", "winScreen");
+    main.innerHTML += '<div class = "winTextVisible">You WON!</div>'
+    for(let sentence of main.childNodes){
+            for(let letterDiv of sentence.childNodes){
+                letterDiv.removeAttribute("tabindex")
+            }
+        }
+}
+
 document.addEventListener("DOMContentLoaded", e => {
+    addListeners(false)
     newPuzzle()
-    addListeners()
 })
