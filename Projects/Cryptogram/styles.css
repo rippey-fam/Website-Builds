@@ -47,8 +47,12 @@ h1 {
     text-align: center;
 }
 
-.box p.letter:hover {
+.focusable.box p.letter:hover {
     background-color: rgb(127, 196, 127);
+}
+
+.notFocusable p.letter{
+    background-color: #e6e6e6;
 }
 
 .sameCode {
@@ -56,7 +60,7 @@ h1 {
 }
 
 .sameLetter {
-    border: 1px solid gray;
+    border: 1px solid black;
 }
 
 .box:focus p.letter {

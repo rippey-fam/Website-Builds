@@ -1,22 +1,52 @@
-let puzzles = [
-  "tO bE Or nOt tO bE",
-  "mAy thE fOrCe bE With yOu",
-  "i hAvE a dReAm",
-  "thErE iS nO pLaCe liKe hOmE",
-  "tO iNfiniTy aNd bEyOnD",
-  "juSt kEEp sWiMMinG",
-  "hOuStOn wE hAvE a prObLeM",
-  "i aM yOur fAthEr",
-  "fOur scOrE aNd sEvEn yEaRs aGo",
-  "lOvE yOur nEiGhbOr aS yOurSeLf",
-  "dO uNtO oThErS aS yOu wOuLd hAvE tHeM dO uNtO yOu",
-  "thE lOrD iS mY shEphErD",
-  "fEaR nOt fOr i aM With yOu",
-  "oNe sMaLl sTeP fOr mAn",
-  "bEtTeR lAtE thAn nEvEr",
-  "pRaCtiCe mAkEs pErFeCt",
-  "lOoK bEfOrE yOu lEaP"
-].sort((a, b) => Math.random() - 0.5)
+function formatPuzzle(puzzle, puzzleFormatCode) {
+    const puzzleFormat = puzzleFormatCode.split("")
+    let puzzleResult = ""
+    for (const letter of puzzle) {
+        let foundLetter = false;
+        for (const formatLetter of puzzleFormat) {
+            if (letter.toUpperCase() === formatLetter.toUpperCase()) {
+                puzzleResult += letter.toUpperCase()
+                foundLetter = true
+                break
+            }
+        }
+        if(!foundLetter){
+            puzzleResult += letter.toLowerCase()
+        }
+    }
+    return puzzleResult
+}
+
+function puzzleParser(...puzzles){
+    let puzzleResult = []
+    for(const puzzle of puzzles){
+        puzzleResult.push(formatPuzzle(...puzzle))
+    }
+    return puzzleResult
+}
+
+let puzzles = puzzleParser(
+    ["To Be Or Not To Be", "TO"],
+    ["May The Force Be With You", "HE"],
+    ["I Have A Dream", "AE"],
+    ["There Is No Place Like Home", "EH"],
+    ["To Infinity And Beyond", "NT"],
+    ["Just Keep Swimming", "MG"],
+    ["Houston We Have A Problem", "WE"],
+    ["I Am Your Father", "AR"],
+    ["Four Score And Seven Years Ago", "OR"],
+    ["Love Your Neighbor As Yourself", "ER"],
+    ["Do Unto Others As You Would Have Them Do Unto You", "OU"],
+    ["The Lord Is My Shepherd", "RD"],
+    ["Fear Not For I Am With You", "AR"],
+    ["One Small Step For Man", "AN"],
+    ["Better Late Than Never", "ER"],
+    ["Practice Makes Perfect", "CT"],
+    ["Look Before You Leap", "OE"]
+)
+puzzles.sort((a, b) => Math.random() - 0.5)
+
+console.log("puzzles:" + puzzles)
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 let randomAlphabet;
 const alphabetMapping = new Array(alphabet.length)
@@ -56,6 +86,20 @@ function generateCryptogram(code) {
                     }
                 }
             })
+            div.addEventListener("focus", (e) => {
+                let codes = document.querySelectorAll('div.box p:last-child');
+                for (let i = 0; i < codes.length; i++) {
+                    if (e.target.lastElementChild.innerText === codes[i].innerText) {
+                        codes[i].previousElementSibling.classList.add("sameLetter")
+                    }
+                }
+            })
+            div.addEventListener("blur", (e) => {
+                let codes = document.querySelectorAll('div.box p:first-child');
+                for (let i = 0; i < codes.length; i++) {
+                    codes[i].classList.remove("sameLetter")
+                }
+            })
             letter.addEventListener("mouseleave", (e) => {
                 let codes = document.querySelectorAll('div.box p:first-child');
                 for (let i = 0; i < codes.length; i++) {
@@ -74,12 +118,14 @@ function generateCryptogram(code) {
             if (code[i] === code[i].toUpperCase()) {
                 letter.innerHTML = code[i]
                 div.removeAttribute("tabindex")
+                div.classList.add("notFocusable")
             } else {
                 letter.innerHTML = "-"
                 div.setAttribute("tabindex", "0");
+                div.classList.add("focusable")
             }
             letter.setAttribute("class", "letter");
-            div.setAttribute("class", "box");
+            div.classList.add("box");
             sentence.append(div)
         }
         main.append(sentence)
@@ -105,7 +151,7 @@ function addListeners() {
                         otherP[i + 1].focus()
                         break
                     } else {
-                        for (let j = i; j < otherP.length; j++) {
+                        for (let j = i; j < otherP.length - 1; j++) {
                             if (otherP[j + 1].hasAttribute("tabindex")) {
                                 otherP[j + 1].focus()
                                 break
@@ -122,16 +168,17 @@ function addListeners() {
             }
         }
         let currentlySolvedCode = []
-        for(let sentence of main.childNodes){
+        for (let sentence of main.childNodes) {
             let word = []
-            for(let letterDiv of sentence.childNodes){
+            for (let letterDiv of sentence.childNodes) {
                 word.push(letterDiv.firstChild.innerHTML)
             }
             currentlySolvedCode.push(word.join(""))
         }
         currentlySolvedCode = currentlySolvedCode.join(" ")
-        if(currentlySolvedCode === currentPuzzle.toUpperCase()){
-            setTimeout(()=>{winGame()}, 10)
+        console.log(currentlySolvedCode)
+        if (currentlySolvedCode === currentPuzzle.toUpperCase()) {
+            setTimeout(() => { winGame() }, 10)
         }
     });
     document.addEventListener("keydown", function (e) {
@@ -145,7 +192,7 @@ function addListeners() {
                             otherP[i + 1].focus()
                             break
                         } else {
-                            for (let j = i; j < otherP.length; j++) {
+                            for (let j = i; j < otherP.length-1; j++) {
                                 if (otherP[j + 1].hasAttribute("tabindex")) {
                                     otherP[j + 1].focus()
                                     break
@@ -164,7 +211,7 @@ function addListeners() {
                             otherP[i - 1].focus()
                             break
                         } else {
-                            for (let j = i; j > 1; j--) {
+                            for (let j = i; j > 0; j--) {
                                 if (otherP[j - 1].hasAttribute("tabindex")) {
                                     otherP[j - 1].focus()
                                     break
@@ -184,7 +231,7 @@ function addListeners() {
                             otherP[i - 1].focus()
                             break
                         } else {
-                            for (let j = i; j > 1; j--) {
+                            for (let j = i; j > 0; j--) {
                                 if (otherP[j - 1].hasAttribute("tabindex")) {
                                     otherP[j - 1].focus()
                                     break
@@ -226,15 +273,17 @@ function restartPuzzle() {
     generateCryptogram(currentPuzzle)
 }
 
-function winGame(){
+function winGame() {
     const main = document.getElementsByTagName("main")[0]
     main.setAttribute("class", "winScreen");
     main.innerHTML += '<div class = "winTextVisible">You WON!</div>'
-    for(let sentence of main.childNodes){
-            for(let letterDiv of sentence.childNodes){
-                letterDiv.removeAttribute("tabindex")
-            }
+    for (let sentence of main.childNodes) {
+        for (let letterDiv of sentence.childNodes) {
+            letterDiv.removeAttribute("tabindex")
+            letterDiv.classList.remove("focusable")
+            letterDiv.classList.remove("notFocusable")
         }
+    }
 }
 
 document.addEventListener("DOMContentLoaded", e => {
