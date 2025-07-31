@@ -224,23 +224,6 @@ function addListeners() {
         }
         if (e.key === "Backspace") {
             selectedP.firstElementChild.innerHTML = "-"
-            for (let i = 0; i < otherP.length; i++) {
-                if (otherP[i] === selectedP) {
-                    if (i != 0) {
-                        if (otherP[i - 1].hasAttribute("tabindex")) {
-                            otherP[i - 1].focus()
-                            break
-                        } else {
-                            for (let j = i; j > 0; j--) {
-                                if (otherP[j - 1].hasAttribute("tabindex")) {
-                                    otherP[j - 1].focus()
-                                    break
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     });
 }
@@ -282,6 +265,8 @@ function winGame() {
             letterDiv.removeAttribute("tabindex")
             letterDiv.classList.remove("focusable")
             letterDiv.classList.remove("notFocusable")
+            letterDiv.classList.remove("sameLetter")
+            letterDiv.classList.remove("sameCode")
         }
     }
 }
