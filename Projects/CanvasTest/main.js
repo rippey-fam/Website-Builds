@@ -1,24 +1,31 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d");
-
+canvas.width = window.innerWidth - 20
+canvas.height = window.innerHeight - 25
 
 class Dot {
+    colorsCount = 12
     constructor(x, y, angle, speed) {
         this.x = x
         this.y = y
+        this.radius = 10;
         this.speed = speed
-        this.color = `hsl(${Math.floor(Math.random() * 30) * (360 / 30)}, 100%, 50%)`
+        this.acc = 0
+        this.color = `hsl(${Math.floor(Math.random() * this.colorsCount) * (360 / this.colorsCount)}, 100%, 50%)`
         this.velocity = [Math.cos(angle), Math.sin(angle)]
     }
+
     move() {
-        this.x += this.velocity[0] * this.speed
-        if (this.x > (canvas.width - 5) || this.x < 5) this.velocity[0] *= -1;
-        this.y += this.velocity[1] * this.speed
-        if (this.y > (canvas.height - 5) || this.y < 5) this.velocity[1] *= -1;
+        for (let i = 0; i < this.speed; i++) {
+            this.x += this.velocity[0]
+            if (this.x > (canvas.width - this.radius) || this.x < 5) this.velocity[0] *= -1;
+            this.y += this.velocity[1]
+            if (this.y > (canvas.height - this.radius) || this.y < 5) this.velocity[1] *= -1;
+        }
     }
     draw() {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
     }
@@ -58,7 +65,7 @@ function game() {
 }
 
 const dots = []
-for (let i = 0; i < 0; i++) {
+for (let i = 0; i < 10; i++) {
     dots.push(new Dot(canvas.width / 2, canvas.height / 2, Math.random() * Math.PI * 2, Math.random() * 10 + 10))
 }
 
