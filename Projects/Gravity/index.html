@@ -1,13 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gravity</title>
+    <style>
+        body {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto;
+            gap: 10px;
+        }
+
+        canvas {
+            border: 1px solid black;
+            margin: 10px;
+            object-fit: contain;
+        }
+
+        #canvas-wrapper {
+            background-color: lightgrey;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 85vw;
+            height: 95vh;
+            position: relative;
+        }
+
+        #fullscreen-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid black;
+        }
+
+        #settings {
+            text-align: center;
+            border: 3px double black;
+            padding: 2px;
+        }
+
+        h3 {
+            font-variant: small-caps;
+            margin: 0;
+        }
+    </style>
 </head>
+
 <body>
-    <!-- Canvas -->
-    <canvas id="canvas" width="1000" height="1000" style="border:1px solid black;"></canvas>
-    <script src="main.js"></script>
+    <div id="settings">
+        <h3>Settings:</h3>
+        <input type="range" min="0" max="0.1" step="0.001" value="0" id="friction"><br>
+        Friction: <span id="friction-display">0</span><br>
+        <input type="range" id="tail-length" min="0" max="5000" value = "100"><br>
+        Tail Length: <span id="tail-length-display">100</span>
+    </div>
+
+    <div id="canvas-wrapper">
+        <button id="fullscreen-button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" class="bi bi-fullscreen" viewBox="0 0 16 16">
+                <path
+                    d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5M.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5" />
+            </svg>
+        </button>
+        <canvas id="canvas" width="1000" height="1000"></canvas>
+        <script src="main.js"></script>
+    </div>
 </body>
+
 </html>

@@ -1,8 +1,12 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth - 20
-canvas.height = window.innerHeight - 25
+const wrapper = document.querySelector("#canvas-wrapper");
+const fullscreenButton = document.querySelector("#fullscreen-button")
+canvas.width = wrapper.clientWidth - 20
+canvas.height = wrapper.clientHeight - 25
 
+let friction = 0;
+let tailLen = 100
 class Dot {
     colorsCount = 12
     constructor(x, y) {
@@ -12,8 +16,13 @@ class Dot {
         this.velocity = { x: 0, y: 0 }
         this.accelerationSpeed = 0.5
         this.radius = 3
-        this.friction = Math.random()*0.02+0.01
         this.color = `hsl(${Math.floor(Math.random() * this.colorsCount) * (360 / this.colorsCount)}, 100%, 50%)`
+    }
+    setFriction(newFriction) {
+        friction = newFriction
+    }
+    setTailLen(len) {
+        tailLen = len
     }
     act() {
         let dx = mouse.x - this.x;
@@ -26,8 +35,8 @@ class Dot {
             this.velocity.y += dy * this.accelerationSpeed;
 
         }
-        this.velocity.x -= this.friction * Math.sign(this.velocity.x)
-        this.velocity.y -= this.friction * Math.sign(this.velocity.y)
+        this.velocity.x -= friction * Math.sign(this.velocity.x)
+        this.velocity.y -= friction * Math.sign(this.velocity.y)
     }
     move() {
         this.x += this.velocity.x
@@ -49,17 +58,18 @@ class Dot {
             this.y = this.radius;
             this.velocity.y = 0;
         }
-        this.points.push({x: this.x, y: this.y})
-        if(this.points.length > 50){
-            this.points.shift()
+        this.points.push({ x: this.x, y: this.y })
+        if (this.points.length > tailLen) {
+            while(this.points.length > tailLen){this.points.shift()}
+            
         }
     }
     draw() {
         ctx.beginPath()
         ctx.strokeStyle = this.color;
         ctx.moveTo(this.points[0].x, this.points[0].y)
-        this.points.forEach((val, i)=>{
-            ctx.lineWidth = i/this.points.length*this.radius
+        this.points.forEach((val, i) => {
+            ctx.lineWidth = i / this.points.length * this.radius
             ctx.lineTo(val.x, val.y)
         })
         ctx.stroke()
@@ -81,7 +91,8 @@ function move() {
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white"
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     dots.forEach((val) => {
         val.draw()
     })
@@ -110,15 +121,45 @@ let mouse = { x: 0, y: 0 }
 document.addEventListener("mousemove", (e) => {
     mouse.x = e.offsetX;
     mouse.y = e.offsetY;
-    console.log(mouse)
 });
 
-document.addEventListener("click", (e)=>{
+canvas.addEventListener("click", (e) => {
     dots.push(new Dot(e.offsetX, e.offsetY))
 })
 
-document.addEventListener("dblclick", (e)=>{
+canvas.addEventListener("dblclick", (e) => {
     for (let i = 0; i < 5; i++) {
-        dots.push(new Dot(e.offsetX+(Math.random()-0.5)*50, e.offsetY+(Math.random()-0.5)*50))
+        dots.push(new Dot(e.offsetX + (Math.random() - 0.5) * 1000, e.offsetY + (Math.random() - 0.5) * 50))
     }
+})
+
+let displayButton = true;
+fullscreenButton.addEventListener("click", (e) => {
+    wrapper.requestFullscreen()
+    fullscreenButton.style.display = "none"
+    console.log("fullScreen")
+})
+
+wrapper.addEventListener("fullscreenchange", (e) => {
+    if (!displayButton) {
+        fullscreenButton.style.display = "flex"
+        displayButton = true
+    } else {
+        displayButton = false
+    }
+    console.log("fullScreen change")
+})
+
+const frictionEl = document.querySelector("#friction")
+const frictionDisp = document.querySelector("#friction-display")
+frictionEl.addEventListener("input", (e)=>{
+    friction = frictionEl.value
+    frictionDisp.innerHTML = frictionEl.value
+})
+
+const tailLenEl = document.querySelector("#tail-length")
+const tailLenDisp = document.querySelector("#tail-length-display")
+tailLenEl.addEventListener("input", (e) => {
+    tailLen = tailLenEl.value
+    tailLenDisp.innerHTML = tailLenEl.value
 })
