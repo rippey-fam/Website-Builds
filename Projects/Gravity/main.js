@@ -12,10 +12,11 @@ function clamp(variable, min, max) {
 }
 
 let friction = 0;
-let tailLen = 100;
+let tailLen = 10;
 let mouseGravity = true;
 let ballGravity = false;
 let bouncy = false;
+let radius = 3;
 class Dot {
     colorsCount = 12;
     constructor(x, y) {
@@ -24,17 +25,7 @@ class Dot {
         this.y = y;
         this.velocity = { x: 0, y: 0 };
         this.accelerationSpeed = 0.5;
-        this.radius = 3;
         this.color = `hsl(${Math.floor(Math.random() * this.colorsCount) * (360 / this.colorsCount)}, 100%, 50%)`;
-    }
-    setFriction(newFriction) {
-        friction = newFriction;
-        if (newFriction !== 0) {
-            friction += (Math.random() - 0.5) * 2 * 0.02;
-        }
-    }
-    setTailLen(len) {
-        tailLen = len;
     }
     act() {
         let bodies = [];
@@ -59,15 +50,15 @@ class Dot {
     move() {
         this.x += this.velocity.x;
         this.y += this.velocity.y;
-        if (this.x > canvas.width - this.radius || this.x < this.radius) {
+        if (this.x > canvas.width - radius || this.x < radius) {
             this.velocity.x = bouncy ? -this.velocity.x : 0;
-            if (this.x < this.radius) this.x = this.radius;
-            else this.x = canvas.width - this.radius;
+            if (this.x < radius) this.x = radius;
+            else this.x = canvas.width - radius;
         }
-        if (this.y > canvas.height - this.radius || this.y < this.radius) {
+        if (this.y > canvas.height - radius || this.y < radius) {
             this.velocity.y = bouncy ? -this.velocity.y : 0;
-            if (this.y < this.radius) this.y = this.radius;
-            else this.y = canvas.height - this.radius;
+            if (this.y < radius) this.y = radius;
+            else this.y = canvas.height - radius;
         }
         this.points.push({ x: this.x, y: this.y });
         if (this.points.length >= tailLen) {
@@ -77,9 +68,10 @@ class Dot {
     draw() {
         ctx.beginPath();
         ctx.strokeStyle = this.color;
+        ctx.lineCap = "round";
         ctx.moveTo(this.points[0].x, this.points[0].y);
-        this.points.forEach((val, i) => {
-            ctx.lineWidth = (i / this.points.length) * this.radius;
+        ctx.lineWidth = radius == 0 ? 0.5 : radius;
+        this.points.forEach((val) => {
             ctx.lineTo(val.x, val.y);
         });
         ctx.stroke();
@@ -87,7 +79,7 @@ class Dot {
         ctx.fillStyle = this.color;
         this.strokeStyle = "black";
         ctx.lineWidth = 2;
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
         ctx.stroke();
         ctx.fill();
     }
@@ -113,9 +105,13 @@ function act() {
     });
 }
 
+let speed = 1;
+
 function game() {
-    act();
-    move();
+    for (let i = 0; i < speed; i++) {
+        act();
+        move();
+    }
     draw();
     requestAnimationFrame(game);
 }
@@ -126,19 +122,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+let realMouse = { x: canvas.width / 2, y: canvas.height / 2 };
+let mouseLocked = false;
 document.addEventListener("mousemove", (e) => {
     let canvasBounds = canvas.getBoundingClientRect();
-    mouse.x = e.x - canvasBounds.x;
-    mouse.y = e.y - canvasBounds.y;
+    realMouse.x = e.x - canvasBounds.x;
+    realMouse.y = e.y - canvasBounds.y;
+    if (!mouseLocked) {
+        mouse.x = e.x - canvasBounds.x;
+        mouse.y = e.y - canvasBounds.y;
+    }
 });
 
 canvas.addEventListener("click", (e) => {
-    dots.push(new Dot(e.offsetX, e.offsetY));
+    dots.push(new Dot(mouse.x, mouse.y));
 });
 
 canvas.addEventListener("dblclick", (e) => {
     for (let i = 0; i < 5; i++) {
-        dots.push(new Dot(e.offsetX + (Math.random() - 0.5) * 500, e.offsetY + (Math.random() - 0.5) * 500));
+        dots.push(new Dot(mouse.x + (Math.random() - 0.5) * 500, mouse.y + (Math.random() - 0.5) * 500));
     }
 });
 
@@ -162,15 +164,29 @@ wrapper.addEventListener("fullscreenchange", (e) => {
 const frictionEl = document.querySelector("#friction");
 const frictionDisp = document.querySelector("#friction-display");
 frictionEl.addEventListener("input", () => {
-    friction = frictionEl.value;
+    friction = parseInt(frictionEl.value);
     frictionDisp.innerHTML = frictionEl.value;
 });
 
 const tailLenEl = document.querySelector("#tail-length");
 const tailLenDisp = document.querySelector("#tail-length-display");
 tailLenEl.addEventListener("input", () => {
-    tailLen = tailLenEl.value;
+    tailLen = parseInt(tailLenEl.value);
     tailLenDisp.innerHTML = tailLenEl.value;
+});
+
+const speedEl = document.querySelector("#speed");
+const speedDisp = document.querySelector("#speed-display");
+speedEl.addEventListener("input", () => {
+    speed = parseInt(speedEl.value);
+    speedDisp.innerHTML = speedEl.value + "x";
+});
+
+const radiusEl = document.querySelector("#ball-radius");
+const radiusDisp = document.querySelector("#ball-radius-display");
+radiusEl.addEventListener("input", () => {
+    radius = parseInt(radiusEl.value);
+    radiusDisp.innerHTML = radiusEl.value;
 });
 
 const mouseGravityEl = document.querySelector("#mouse-gravity");
@@ -192,6 +208,8 @@ const deleteButton = document.querySelector("#trash-button");
 deleteButton.addEventListener("click", () => {
     dots = [];
 });
+
+const mouseLockedDisp = document.querySelector("#mouse-locked-indicator");
 
 document.addEventListener("keydown", (e) => {
     switch (e.key) {
@@ -218,6 +236,30 @@ document.addEventListener("keydown", (e) => {
         case "o":
             bouncyEl.checked = !bouncyEl.checked;
             bouncy = bouncyEl.checked;
+            break;
+        case "l":
+            mouseLocked = !mouseLocked;
+            if (mouseLocked) mouseLockedDisp.innerHTML = "✔";
+            else {
+                mouseLockedDisp.innerHTML = "✖";
+                mouse.x = realMouse.x;
+                mouse.y = realMouse.y;
+            }
+            break;
+        case "u":
+            if (dots.length > 0) dots.pop();
+            break;
+        case ",":
+            speed -= 1;
+            speed = clamp(speed, 0, 10);
+            speedEl.value = speed;
+            speedDisp.innerHTML = speedEl.value + "x";
+            break;
+        case ".":
+            speed += 1;
+            speed = clamp(speed, 0, 10);
+            speedEl.value = speed;
+            speedDisp.innerHTML = speedEl.value + "x";
             break;
         default:
             break;

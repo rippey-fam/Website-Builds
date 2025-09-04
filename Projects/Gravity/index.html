@@ -72,13 +72,21 @@
             <h3>Settings:</h3>
             <input type="range" min="0" max="0.1" step="0.001" value="0" id="friction" /><br />
             Friction: <span id="friction-display">0</span><br />
-            <input type="range" id="tail-length" min="0" max="1000" value="100" /><br />
-            Tail Length: <span id="tail-length-display">100</span>
+            <input type="range" id="tail-length" min="0" max="1000" value="10" /><br />
+            Tail Length: <span id="tail-length-display">10</span>
             <hr />
             <label><u>M</u>ouse Gravity? <input type="checkbox" checked id="mouse-gravity" /></label><br />
             <label><u>B</u>all Gravity? <input type="checkbox" id="ball-gravity" /></label>
             <hr />
             <label>B<u>o</u>uncy? <input type="checkbox" id="bouncy" /></label>
+            <hr />
+            <input type="range" min="0" max="10" step="1" value="1" id="speed" /><br />
+            Speed: <span id="speed-display">1x</span>
+            <hr />
+            <input type="range" min="0" max="50" step="1" value="3" id="ball-radius" /><br />
+            Ball Radius: <span id="ball-radius-display">3</span>
+            <hr />
+            <u>L</u>ock Mouse <span id="mouse-locked-indicator">✖</span> | <u>U</u>ndo Ball
         </div>
 
         <div id="canvas-wrapper">
