@@ -25,6 +25,7 @@ portfolio-website/
 ## 🚀 Features
 
 ### Main Portfolio (`index.html`)
+
 - **Responsive Design**: Looks great on all devices
 - **Dynamic About Section**: Personalized content highlighting your achievements
 - **Interactive Hero Section**: Animated statistics and typing effects
@@ -34,6 +35,7 @@ portfolio-website/
 - **Modern Animations**: Fade-in effects and hover interactions
 
 ### Admin Panel (`admin.html`)
+
 - **Password Protection**: Secure access with password "anIdiotsLuggage"
 - **Add New Projects**: Upload images and add project details
 - **Edit Existing Projects**: Modify project information
@@ -65,30 +67,36 @@ portfolio-website/
 ## 🎨 Customization
 
 ### Colors
+
 Edit the CSS custom properties in `css/styles.css`:
+
 ```css
 :root {
-    --primary-color: #2563eb;    /* Main blue color */
-    --secondary-color: #1e40af;  /* Darker blue */
-    --accent-color: #f59e0b;     /* Yellow accent */
+    --primary-color: #2563eb; /* Main blue color */
+    --secondary-color: #1e40af; /* Darker blue */
+    --accent-color: #f59e0b; /* Yellow accent */
     /* ... other colors */
 }
 ```
 
 ### Content
+
 - **About Section**: Edit the content in `index.html` under the `#about` section
 - **Contact Info**: Update email and GitHub links in the contact section
 - **Navigation**: Modify nav links in both `index.html` and `admin.html`
 
 ### Admin Password
+
 To change the admin password, edit the `ADMIN_PASSWORD` constant in `js/admin.js`:
+
 ```javascript
-const ADMIN_PASSWORD = 'yourNewPassword';
+const ADMIN_PASSWORD = "yourNewPassword";
 ```
 
 ## 📂 Adding New Projects
 
 ### Method 1: Using Admin Panel (Recommended)
+
 1. Go to `admin.html`
 2. Enter password: `anIdiotsLuggage`
 3. Click "Add New Project"
@@ -96,6 +104,7 @@ const ADMIN_PASSWORD = 'yourNewPassword';
 5. Click "Add Project"
 
 ### Method 2: Manual Addition
+
 1. Add project image to `images/` folder
 2. Edit the `projects` array in `js/main.js`
 3. Add new project object with required fields
@@ -103,16 +112,19 @@ const ADMIN_PASSWORD = 'yourNewPassword';
 ## 🌐 Deployment
 
 ### Local Development
+
 - Simply open `index.html` in your browser
 - All files work locally without a server
 
 ### Web Hosting
+
 1. Upload all files to your web hosting service
 2. Maintain the folder structure
 3. Ensure all file paths are correct
 4. Test admin panel functionality
 
 ### GitHub Pages
+
 1. Create a new repository
 2. Upload all files maintaining structure
 3. Enable GitHub Pages in repository settings
@@ -144,6 +156,7 @@ const ADMIN_PASSWORD = 'yourNewPassword';
 ## 📞 Support
 
 For questions or issues:
+
 - **Email**: rippey.fam@gmail.com
 - **GitHub**: [github.com/rippey-fam](https://github.com/rippey-fam)
 

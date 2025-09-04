@@ -274,7 +274,8 @@
     flex-shrink: 0;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
     padding: 0.5rem;
     border: none;
     border-radius: 6px;
@@ -498,7 +499,8 @@
     border-top: 1px solid var(--border-color);
 }
 
-.cancel-btn, .save-btn {
+.cancel-btn,
+.save-btn {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
@@ -547,8 +549,12 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Responsive Design */
@@ -558,40 +564,40 @@
         gap: 1rem;
         text-align: center;
     }
-    
+
     .admin-main {
         padding: 1rem;
     }
-    
+
     .admin-section {
         padding: 1.5rem;
     }
-    
+
     .section-header {
         flex-direction: column;
         align-items: stretch;
         text-align: center;
     }
-    
+
     .project-card-header {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .project-actions {
         justify-content: center;
         margin-top: 1rem;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     .modal-content {
         margin: 1rem;
         max-height: calc(100vh - 2rem);
     }
-    
+
     .login-container {
         margin: 1rem;
         padding: 2rem;

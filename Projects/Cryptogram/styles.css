@@ -12,7 +12,7 @@ main {
 }
 
 div {
-    margin-top: .5em;
+    margin-top: 0.5em;
 }
 
 h1 {
@@ -51,7 +51,7 @@ h1 {
     background-color: rgb(127, 196, 127);
 }
 
-.notFocusable p.letter{
+.notFocusable p.letter {
     background-color: #e6e6e6;
 }
 
@@ -77,7 +77,9 @@ h1 {
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15);
     cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition:
+        box-shadow 0.2s,
+        transform 0.2s;
     margin: 0.5em;
 }
 
@@ -91,19 +93,25 @@ h1 {
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(46, 204, 113, 0.15);
     cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition:
+        box-shadow 0.2s,
+        transform 0.2s;
     margin: 0.5em;
 }
 
 .restart:hover,
 .newgame:hover {
-    box-shadow: 0 6px 18px rgba(30, 144, 255, 0.18), 0 2px 8px rgba(46, 204, 113, 0.18);
+    box-shadow:
+        0 6px 18px rgba(30, 144, 255, 0.18),
+        0 2px 8px rgba(46, 204, 113, 0.18);
     transform: translateY(-3px) scale(1.04);
 }
 
 .restart:active,
 .newgame:active {
-    box-shadow: 0 2px 8px rgba(30, 144, 255, 0.15), 0 2px 8px rgba(46, 204, 113, 0.15);
+    box-shadow:
+        0 2px 8px rgba(30, 144, 255, 0.15),
+        0 2px 8px rgba(46, 204, 113, 0.15);
     transform: translateY(0);
 }
 
@@ -134,7 +142,7 @@ h1 {
     justify-content: center;
     text-shadow:
         -2px -2px 0 #000,
-         2px -2px 0 #000,
-        -2px  2px 0 #000,
-         2px  2px 0 #000;
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000;
 }

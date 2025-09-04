@@ -1,22 +1,22 @@
 [
-  {
-    "id": 1,
-    "title": "Quadratic Formula Solver",
-    "description": "A web-based calculator that solves quadratic equations and displays the solutions with step-by-step explanations. Built with JavaScript and features a clean, intuitive interface for students and educators.",
-    "image": "images/QuadraticFormulaScreenshot.png",
-    "link": "https://rippey-fam.github.io/Website-Builds/Projects/QuadraticFormula/",
-    "date": "2025-08-02T00:00:00.000Z",
-    "technologies": ["HTML", "CSS", "JavaScript"],
-    "featured": true
-  },
-  {
-    "id": 2,
-    "title": "Cryptogram Game",
-    "description": "An interactive puzzle game where players decode encrypted messages using letter substitution ciphers. Features multiple difficulty levels, hints system, and score tracking for an engaging puzzle experience.",
-    "image": "images/CryptogramScreenshot.png",
-    "link": "https://rippey-fam.github.io/Website-Builds/Projects/Cryptogram/",
-    "date": "2025-08-01T00:00:00.000Z",
-    "technologies": ["HTML", "CSS", "JavaScript", "Local Storage"],
-    "featured": true
-  }
+    {
+        "id": 1,
+        "title": "Quadratic Formula Solver",
+        "description": "A web-based calculator that solves quadratic equations and displays the solutions with step-by-step explanations. Built with JavaScript and features a clean, intuitive interface for students and educators.",
+        "image": "images/QuadraticFormulaScreenshot.png",
+        "link": "https://rippey-fam.github.io/Website-Builds/Projects/QuadraticFormula/",
+        "date": "2025-08-02T00:00:00.000Z",
+        "technologies": ["HTML", "CSS", "JavaScript"],
+        "featured": true
+    },
+    {
+        "id": 2,
+        "title": "Cryptogram Game",
+        "description": "An interactive puzzle game where players decode encrypted messages using letter substitution ciphers. Features multiple difficulty levels, hints system, and score tracking for an engaging puzzle experience.",
+        "image": "images/CryptogramScreenshot.png",
+        "link": "https://rippey-fam.github.io/Website-Builds/Projects/Cryptogram/",
+        "date": "2025-08-01T00:00:00.000Z",
+        "technologies": ["HTML", "CSS", "JavaScript", "Local Storage"],
+        "featured": true
+    }
 ]
