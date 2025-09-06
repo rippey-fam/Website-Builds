@@ -6,7 +6,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "prettier --write .",
         "dev": "live-server .",
-        "dev:gravity": "live-server ./Projects/Gravity"
+        "dev:gravity": "live-server ./Projects/Gravity",
+        "dev:files": "live-server ./Projects"
     },
     "repository": {
         "type": "git",

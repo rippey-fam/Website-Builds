@@ -134,13 +134,13 @@ document.addEventListener("mousemove", (e) => {
     }
 });
 
-canvas.addEventListener("click", (e) => {
-    dots.push(new Dot(mouse.x, mouse.y));
+canvas.addEventListener("click", () => {
+    dots.push(new Dot(realMouse.x, realMouse.y));
 });
 
 canvas.addEventListener("dblclick", (e) => {
     for (let i = 0; i < 5; i++) {
-        dots.push(new Dot(mouse.x + (Math.random() - 0.5) * 500, mouse.y + (Math.random() - 0.5) * 500));
+        dots.push(new Dot(realMouse.x + (Math.random() - 0.5) * 500, realMouse.y + (Math.random() - 0.5) * 500));
     }
 });
 
@@ -247,7 +247,7 @@ document.addEventListener("keydown", (e) => {
             }
             break;
         case "u":
-            if (dots.length > 0) dots.pop();
+            if (dots.length > 1) dots.pop();
             break;
         case ",":
             speed -= 1;
