@@ -21,15 +21,15 @@ function getMillisecondsPlusDate() {
 }
 
 class Line {
-    constructor(
-        delay,
+    constructor({
+        delay = 0,
         time,
         p1,
         p2,
         equation = (x) => {
             return x;
         },
-    ) {
+    }) {
         this.delay = delay;
         this.time = time;
         this.p1 = p1;
@@ -41,20 +41,24 @@ class Line {
         let t = getMillisecondsPlusDate() - this.creationTime;
         t -= this.delay;
         let r = interpolate(t, this.time, this.equation);
-        ctx.beginPath();
-        ctx.strokeStyle = "red";
-        ctx.lineCap = "round";
-        ctx.lineWidth = 5;
-        ctx.moveTo(this.p1.x, this.p1.y);
-        ctx.lineTo(this.p1.x + (this.p2.x - this.p1.x) * r, this.p1.y + (this.p2.y - this.p1.y) * r);
-        ctx.closePath();
-        ctx.stroke();
+        if (r !== 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "red";
+            ctx.lineCap = "round";
+            ctx.lineWidth = 7;
+            ctx.moveTo(this.p1.x, this.p1.y);
+            ctx.lineTo(this.p1.x + (this.p2.x - this.p1.x) * r, this.p1.y + (this.p2.y - this.p1.y) * r);
+            ctx.stroke();
+        }
+    }
+    getDelay() {
+        return this.delay;
     }
 }
 
 class Circle {
-    constructor(
-        delay,
+    constructor({
+        delay = 0,
         time,
         p,
         r,
@@ -65,7 +69,7 @@ class Circle {
         equation = (x) => {
             return x;
         },
-    ) {
+    }) {
         this.delay = delay;
         this.time = time;
         this.p = p;
@@ -81,21 +85,95 @@ class Circle {
         let t = getMillisecondsPlusDate() - this.creationTime;
         t -= this.delay;
         let r = interpolate(t, this.time, this.equation);
-        ctx.strokeStyle = "green";
-        ctx.lineCap = "round";
-        ctx.lineWidth = 10;
-        ctx.beginPath();
-        ctx.arc(
-            this.p.x,
-            this.p.y,
-            this.r,
-            this.start,
-            this.clockwise ? this.start + this.end * r : this.start + 2 * Math.PI - this.end * r,
-            !this.clockwise,
-        );
-        ctx.stroke();
-        if (this.fill) ctx.fill();
+        if (r !== 0) {
+            ctx.strokeStyle = "green";
+            ctx.lineCap = "round";
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(
+                this.p.x,
+                this.p.y,
+                this.r,
+                this.start,
+                this.clockwise ? this.start + this.end * r : this.start - this.end * r,
+                !this.clockwise,
+            );
+            ctx.stroke();
+            if (this.fill) ctx.fill();
+        }
     }
+    getDelay() {
+        return this.delay;
+    }
+}
+
+class Queue {
+    constructor() {
+        this.totalDelay = 0;
+    }
+    next(callback) {
+        this.totalDelay += callback(this.totalDelay);
+        return this;
+    }
+    delay(num) {
+        this.totalDelay += num;
+        return this;
+    }
+    reset() {
+        this.totalDelay = 0;
+        return this;
+    }
+}
+
+// ...existing code...
+function drawX(delay) {
+    let x = Math.random() * 500 + 50;
+    let y = Math.random() * 500 + 50;
+    let size = 50;
+    let time = 1000;
+    let overlap = 500;
+    const half = size / 2;
+    const p1 = { x: x - half, y: y - half };
+    const p2 = { x: x + half, y: y + half };
+    const p3 = { x: x - half, y: y + half };
+    const p4 = { x: x + half, y: y - half };
+    let left = new Line({
+        delay,
+        time: time,
+        p1: p1,
+        p2: p2,
+        equation: easeInOutCubic,
+    });
+    let right = new Line({
+        delay: delay + time - overlap,
+        time: time,
+        p1: p4,
+        p2: p3,
+        equation: easeInOutCubic,
+    });
+    instances.push(left);
+    instances.push(right);
+    return left.getDelay() + right.getDelay() - overlap;
+}
+
+function drawO(delay) {
+    let x = Math.random() * 500 + 50;
+    let y = Math.random() * 500 + 50;
+    let size = 30;
+    let time = 1000;
+    let circle = new Circle({
+        delay,
+        time,
+        p: { x, y },
+        r: size,
+        start: 0,
+        end: 2 * Math.PI,
+        fill: false,
+        clockwise: true,
+        equation: easeInOutCubic,
+    });
+    instances.push(circle);
+    return circle.getDelay();
 }
 
 /**
@@ -112,6 +190,8 @@ function game() {
 
 document.addEventListener("DOMContentLoaded", () => {
     game();
+    let queue = new Queue();
+    queue.delay(1000).next(drawO).next(drawX).delay(500).next(drawO).next(drawX).next(drawO).next(drawX).reset();
 });
 
 let positions = [];
@@ -121,7 +201,8 @@ canvas.addEventListener("click", (e) => {
     positions.push({ x: e.x - canvasBounds.x, y: e.y - canvasBounds.y });
     console.log(positions);
     if (positions.length === 2) {
-        instances.push(new Line(0, time, positions[0], positions[1], easeInOutCubic));
+        if (positions[0].x !== positions[1].x && positions[0].y !== positions[1].y)
+            instances.push(new Line({ delay: 0, time, p1: positions[0], p2: positions[1], equation: easeInOutCubic }));
         positions = [];
     }
 });
@@ -129,18 +210,19 @@ canvas.addEventListener("click", (e) => {
 canvas.addEventListener("dblclick", (e) => {
     let canvasBounds = canvas.getBoundingClientRect();
     instances.push(
-        new Circle(
-            0,
+        new Circle({
+            delay: 0,
             time,
-            { x: e.x - canvasBounds.x, y: e.y - canvasBounds.y },
-            50,
-            0,
-            2 * Math.PI,
-            false,
-            true,
-            easeInOutCubic,
-        ),
+            p: { x: e.x - canvasBounds.x, y: e.y - canvasBounds.y },
+            r: 50,
+            start: 0,
+            end: 2 * Math.PI,
+            fill: false,
+            clockwise: !true,
+            equation: easeInOutCubic,
+        }),
     );
+    positions = [];
 });
 
 const timeEl = document.getElementById("time");
