@@ -1,6 +1,13 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
+function easeOutBack(x) {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+
+    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+}
+
 function easeInOutCubic(x) {
     return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
@@ -51,8 +58,8 @@ class Line {
             ctx.stroke();
         }
     }
-    getDelay() {
-        return this.delay;
+    get totalTime() {
+        return this.delay + this.time;
     }
 }
 
@@ -102,8 +109,8 @@ class Circle {
             if (this.fill) ctx.fill();
         }
     }
-    getDelay() {
-        return this.delay;
+    get totalTime() {
+        return this.delay + this.time;
     }
 }
 
@@ -111,8 +118,13 @@ class Queue {
     constructor() {
         this.totalDelay = 0;
     }
+    /**
+     * @param {Function} callback
+     * @returns
+     */
     next(callback) {
-        this.totalDelay += callback(this.totalDelay);
+        let delayToAdd = callback(this.totalDelay);
+        this.totalDelay = delayToAdd;
         return this;
     }
     delay(num) {
@@ -125,7 +137,6 @@ class Queue {
     }
 }
 
-// ...existing code...
 function drawX(delay) {
     let x = Math.random() * 500 + 50;
     let y = Math.random() * 500 + 50;
@@ -142,18 +153,18 @@ function drawX(delay) {
         time: time,
         p1: p1,
         p2: p2,
-        equation: easeInOutCubic,
+        equation: (x) => x,
     });
     let right = new Line({
         delay: delay + time - overlap,
         time: time,
         p1: p4,
         p2: p3,
-        equation: easeInOutCubic,
+        equation: (x) => x,
     });
     instances.push(left);
     instances.push(right);
-    return left.getDelay() + right.getDelay() - overlap;
+    return right.totalTime;
 }
 
 function drawO(delay) {
@@ -170,14 +181,15 @@ function drawO(delay) {
         end: 2 * Math.PI,
         fill: false,
         clockwise: true,
-        equation: easeInOutCubic,
+        equation: (x) => x,
     });
     instances.push(circle);
-    return circle.getDelay();
+    console.log("circle delay", delay);
+    return circle.totalTime;
 }
 
 /**
- * @type Line[]
+ * @type Line|Circle[]
  */
 let instances = [];
 function game() {
@@ -191,7 +203,7 @@ function game() {
 document.addEventListener("DOMContentLoaded", () => {
     game();
     let queue = new Queue();
-    queue.delay(1000).next(drawO).next(drawX).delay(500).next(drawO).next(drawX).next(drawO).next(drawX).reset();
+    queue.next(drawO).next(drawX).next(drawO).next(drawX).next(drawO).next(drawX).reset();
 });
 
 let positions = [];
