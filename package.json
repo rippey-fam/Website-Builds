@@ -7,7 +7,8 @@
         "lint": "prettier --write .",
         "dev": "live-server .",
         "dev:ani": "live-server ./Projects/Animation",
-        "dev:files": "live-server ./Projects"
+        "dev:files": "live-server ./Projects",
+        "dev:top-files": "live-server ."
     },
     "repository": {
         "type": "git",
