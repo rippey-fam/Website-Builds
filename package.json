@@ -5,10 +5,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "prettier --write .",
-        "dev": "live-server .",
-        "dev:ani": "live-server ./Projects/Animation",
-        "dev:files": "live-server ./Projects",
-        "dev:top-files": "live-server ."
+        "dev": "live-server ./src",
+        "dev:project": "live-server ./src/Projects/Animation"
     },
     "repository": {
         "type": "git",
