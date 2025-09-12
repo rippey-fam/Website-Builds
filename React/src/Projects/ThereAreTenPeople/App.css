@@ -1,0 +1,25 @@
+#root {
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+.avatar {
+    border-radius: 50%;
+    height: 500px;
+    width: 500px;
+    border: 2px solid black;
+}
+ul {
+    text-align: center;
+    margin: auto;
+}
+li:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+li {
+    text-align: left;
+}
+span {
+    font-variant: small-caps;
+}
