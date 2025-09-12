@@ -149,7 +149,11 @@ export class Circle {
         this.end = end;
         this.fill = fill;
         this.clockwise = clockwise;
-        this.equation = equation;
+        if (typeof equation === "function") {
+            this.equation = equation;
+        } else {
+            this.equation = interpFunctions[equation] ?? ((x) => x);
+        }
         this.color = color;
         this.lineWidth = lineWidth;
         this.creationTime = getMillisecondsPlusDate();
@@ -312,62 +316,62 @@ export function drawCircle({
 //  Main Code   //
 //////////////////
 
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
+// const canvas = document.querySelector("canvas");
+// const ctx = canvas.getContext("2d");
 
-/**
- * @type Line|Circle[]
- */
-let instances = [];
-function game() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    instances.forEach((instance) => {
-        instance.draw(ctx);
-    });
-    requestAnimationFrame(game);
-}
+// /**
+//  * @type Line|Circle[]
+//  */
+// let instances = [];
+// function game() {
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     instances.forEach((instance) => {
+//         instance.draw(ctx);
+//     });
+//     requestAnimationFrame(game);
+// }
 
-document.addEventListener("DOMContentLoaded", () => {
-    game();
-    let queue = new Queue();
-    queue
-        .next(
-            drawRect({
-                time: 1000,
-                p1: { x: 100, y: 100 },
-                p2: { x: 300, y: 300 },
-                overlap: 0,
-                color: "red",
-                lineWidth: 5,
-                equation: easeInOutCubic,
-                instances,
-            }),
-        )
-        .next(
-            drawLine({
-                time: 1000,
-                p1: { x: 400, y: 100 },
-                p2: { x: 400, y: 300 },
-                color: "blue",
-                lineWidth: 10,
-                equation: easeInOutCubic,
-                instances,
-            }),
-        )
-        .next(
-            drawCircle({
-                time: 1000,
-                p1: { x: 600, y: 200 },
-                r: 50,
-                start: 0,
-                end: 2 * Math.PI,
-                fill: false,
-                clockwise: true,
-                color: "green",
-                lineWidth: 8,
-                equation: easeInOutCubic,
-                instances,
-            }),
-        )
-        .reset();
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//     game();
+//     let queue = new Queue();
+//     queue
+//         .next(
+//             drawRect({
+//                 time: 1000,
+//                 p1: { x: 100, y: 100 },
+//                 p2: { x: 300, y: 300 },
+//                 overlap: 0,
+//                 color: "red",
+//                 lineWidth: 5,
+//                 equation: easeInOutCubic,
+//                 instances,
+//             }),
+//         )
+//         .next(
+//             drawLine({
+//                 time: 1000,
+//                 p1: { x: 400, y: 100 },
+//                 p2: { x: 400, y: 300 },
+//                 color: "blue",
+//                 lineWidth: 10,
+//                 equation: easeInOutCubic,
+//                 instances,
+//             }),
+//         )
+//         .next(
+//             drawCircle({
+//                 time: 1000,
+//                 p1: { x: 600, y: 200 },
+//                 r: 50,
+//                 start: 0,
+//                 end: 2 * Math.PI,
+//                 fill: false,
+//                 clockwise: true,
+//                 color: "green",
+//                 lineWidth: 8,
+//                 equation: easeInOutCubic,
+//                 instances,
+//             }),
+//         )
+//         .reset();
+// });
