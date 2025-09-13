@@ -210,17 +210,29 @@ export class Queue {
  * @param {Point} param0.p1 - one corner of rectangle
  * @param {Point} param0.p2 - opposite corner of rectangle
  * @param {number} param0.overlap - time to overlap the two line animations
- * @param {keyof typeof interpFunctions | function} [param0.equation] - interpolate function or name of interpolate function
+ * @param {keyof typeof interpFunctions | function} param0.equation - interpolate function or name of interpolate function
+ * @param {"branched" | "ordered" | "parallel" | "windmill"} drawType - order to draw rectangle
  * @param {number} param0.time - length of animation
  * @param {string} [param0.color="black"] - line color
  * @param {number} [param0.lineWidth=7] - line width
  * @param {Array} param0.instances - array to push created line into
  */
-export function drawRect({ time, p1, p2, overlap, equation = undefined, color = "black", lineWidth = 7, instances }) {
+export function drawRect({
+    time,
+    p1,
+    p2,
+    overlap,
+    equation = undefined,
+    drawType = "branched",
+    color = "black",
+    lineWidth = 7,
+    instances,
+}) {
+    let lines = [];
     return (delay) => {
         let line1 = new Line({
             delay,
-            time,
+            time: time / 2,
             p1: { x: p1.x, y: p1.y },
             p2: { x: p2.x, y: p1.y },
             color,
@@ -229,7 +241,7 @@ export function drawRect({ time, p1, p2, overlap, equation = undefined, color = 
         });
         let line2 = new Line({
             delay,
-            time,
+            time: time / 2,
             p1: { x: p1.x, y: p1.y },
             p2: { x: p1.x, y: p2.y },
             color,
@@ -238,7 +250,7 @@ export function drawRect({ time, p1, p2, overlap, equation = undefined, color = 
         });
         let line3 = new Line({
             delay: line1.totalTime - overlap,
-            time,
+            time: time / 2,
             p1: { x: p2.x, y: p1.y },
             p2: { x: p2.x, y: p2.y },
             color,
@@ -247,7 +259,7 @@ export function drawRect({ time, p1, p2, overlap, equation = undefined, color = 
         });
         let line4 = new Line({
             delay: line1.totalTime - overlap,
-            time,
+            time: time / 2,
             p1: { x: p1.x, y: p2.y },
             p2: { x: p2.x, y: p2.y },
             color,

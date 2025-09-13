@@ -21,13 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     queue
         .next(
             drawRect({
-                time: 1000,
+                time: 2000,
                 p1: { x: 100, y: 100 },
                 p2: { x: 300, y: 300 },
                 overlap: 0,
                 color: "red",
                 lineWidth: 5,
-                equation: "easeInOut",
+                equation: "easeOutBounce",
                 instances,
             }),
         )
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 p2: { x: 400, y: 300 },
                 color: "blue",
                 lineWidth: 10,
-                equation: "easeInOut",
+                equation: "easeOutBack",
                 instances,
             }),
         )
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 clockwise: true,
                 color: "green",
                 lineWidth: 8,
-                equation: "easeInOut",
+                equation: "easeOut",
                 instances,
             }),
         )
