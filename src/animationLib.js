@@ -107,6 +107,7 @@ export class Line {
             ctx.stroke();
         }
     }
+
     get totalTime() {
         return this.delay + this.time;
     }
