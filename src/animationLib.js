@@ -206,17 +206,86 @@ export class Queue {
         return this;
     }
 }
+// /**
+//  * @param {Object} param0
+//  * @param {Point} param0.p1 - one corner of rectangle
+//  * @param {Point} param0.p2 - opposite corner of rectangle
+//  * @param {number} param0.overlap - time to overlap the two line animations
+//  * @param {keyof typeof interpFunctions | function} param0.equation - interpolate function or name of interpolate function
+//  * @param {"branched" | "ordered" | "parallel" | "windmill"} drawType - order to draw rectangle
+//  * @param {number} param0.time - length of animation
+//  * @param {string} [param0.color="black"] - line color
+//  * @param {number} [param0.lineWidth=7] - line width
+//  * @param {Array} param0.instances - array to push created line into
+//  */
+// export function drawRect({
+//     time,
+//     p1,
+//     p2,
+//     overlap,
+//     equation = undefined,
+//     drawType = "branched",
+//     color = "black",
+//     lineWidth = 7,
+//     instances,
+// }) {
+//     let lines = [];
+//     return (delay) => {
+//         let line1 = new Line({
+//             delay,
+//             time: time / 2,
+//             p1: { x: p1.x, y: p1.y },
+//             p2: { x: p2.x, y: p1.y },
+//             color,
+//             lineWidth,
+//             equation,
+//         });
+//         let line2 = new Line({
+//             delay,
+//             time: time / 2,
+//             p1: { x: p1.x, y: p1.y },
+//             p2: { x: p1.x, y: p2.y },
+//             color,
+//             lineWidth,
+//             equation,
+//         });
+//         let line3 = new Line({
+//             delay: line1.totalTime - overlap,
+//             time: time / 2,
+//             p1: { x: p2.x, y: p1.y },
+//             p2: { x: p2.x, y: p2.y },
+//             color,
+//             lineWidth,
+//             equation,
+//         });
+//         let line4 = new Line({
+//             delay: line1.totalTime - overlap,
+//             time: time / 2,
+//             p1: { x: p1.x, y: p2.y },
+//             p2: { x: p2.x, y: p2.y },
+//             color,
+//             lineWidth,
+//             equation,
+//         });
+//         instances.push(line1, line2, line3, line4);
+//         return line4.totalTime;
+//     };
+// }
+
 /**
  * @param {Object} param0
  * @param {Point} param0.p1 - one corner of rectangle
  * @param {Point} param0.p2 - opposite corner of rectangle
- * @param {number} param0.overlap - time to overlap the two line animations
+ * @param {number} param0.overlap - time to overlap line animations
  * @param {keyof typeof interpFunctions | function} param0.equation - interpolate function or name of interpolate function
- * @param {"branched" | "ordered" | "parallel" | "windmill"} drawType - order to draw rectangle
+ * @param {"branched" | "ordered" | "parallel" | "windmill"} param0.drawType - order to draw rectangle:
+ *   "branched":  ┌─1─┐    "ordered":   ┌─1─┐    "parallel":  ┌─1─┐    "windmill":  ┌─1─┐
+ *               1│   │2               4│   │2               2│   │2               1│   │1
+ *                └─2─┘                 └─3─┘                 └─1─┘                 └─1─┘
  * @param {number} param0.time - length of animation
  * @param {string} [param0.color="black"] - line color
  * @param {number} [param0.lineWidth=7] - line width
- * @param {Array} param0.instances - array to push created line into
+ * @param {Array} param0.instances - array to push created lines into
  */
 export function drawRect({
     time,
@@ -229,48 +298,201 @@ export function drawRect({
     lineWidth = 7,
     instances,
 }) {
-    let lines = [];
     return (delay) => {
-        let line1 = new Line({
-            delay,
-            time: time / 2,
-            p1: { x: p1.x, y: p1.y },
-            p2: { x: p2.x, y: p1.y },
-            color,
-            lineWidth,
-            equation,
-        });
-        let line2 = new Line({
-            delay,
-            time: time / 2,
-            p1: { x: p1.x, y: p1.y },
-            p2: { x: p1.x, y: p2.y },
-            color,
-            lineWidth,
-            equation,
-        });
-        let line3 = new Line({
-            delay: line1.totalTime - overlap,
-            time: time / 2,
-            p1: { x: p2.x, y: p1.y },
-            p2: { x: p2.x, y: p2.y },
-            color,
-            lineWidth,
-            equation,
-        });
-        let line4 = new Line({
-            delay: line1.totalTime - overlap,
-            time: time / 2,
-            p1: { x: p1.x, y: p2.y },
-            p2: { x: p2.x, y: p2.y },
-            color,
-            lineWidth,
-            equation,
-        });
-        instances.push(line1, line2, line3, line4);
-        return line4.totalTime;
+        let lines = [];
+
+        // Define the four lines
+        const topLine = () =>
+            new Line({
+                delay,
+                time: time / 2,
+                p1: { x: p1.x, y: p1.y },
+                p2: { x: p2.x, y: p1.y },
+                color,
+                lineWidth,
+                equation,
+            });
+
+        const leftLine = () =>
+            new Line({
+                delay,
+                time: time / 2,
+                p1: { x: p1.x, y: p1.y },
+                p2: { x: p1.x, y: p2.y },
+                color,
+                lineWidth,
+                equation,
+            });
+
+        const rightLine = (customDelay = delay) =>
+            new Line({
+                delay: customDelay,
+                time: time / 2,
+                p1: { x: p2.x, y: p1.y },
+                p2: { x: p2.x, y: p2.y },
+                color,
+                lineWidth,
+                equation,
+            });
+
+        const bottomLine = (customDelay = delay) =>
+            new Line({
+                delay: customDelay,
+                time: time / 2,
+                p1: { x: p1.x, y: p2.y },
+                p2: { x: p2.x, y: p2.y },
+                color,
+                lineWidth,
+                equation,
+            });
+
+        switch (drawType) {
+            case "branched":
+                // Top and left first, then right and bottom
+                const line1 = topLine();
+                const line2 = leftLine();
+                const line3 = rightLine(line1.totalTime - overlap);
+                const line4 = bottomLine(line1.totalTime - overlap);
+                lines = [line1, line2, line3, line4];
+                break;
+
+            case "ordered":
+                // Corner to corner clockwise: top-left to top-right, then top-right to bottom-right, etc.
+                const orderedLine1 = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p1.y },
+                    p2: { x: p2.x, y: p1.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const orderedLine2 = new Line({
+                    delay: orderedLine1.totalTime - overlap,
+                    time: time / 4,
+                    p1: { x: p2.x, y: p1.y },
+                    p2: { x: p2.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const orderedLine3 = new Line({
+                    delay: orderedLine2.totalTime - overlap,
+                    time: time / 4,
+                    p1: { x: p2.x, y: p2.y },
+                    p2: { x: p1.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const orderedLine4 = new Line({
+                    delay: orderedLine3.totalTime - overlap,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p2.y },
+                    p2: { x: p1.x, y: p1.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                lines = [orderedLine1, orderedLine2, orderedLine3, orderedLine4];
+                break;
+
+            case "parallel":
+                // Horizontal lines first, then vertical lines
+                const parallelTop = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p1.y },
+                    p2: { x: p2.x, y: p1.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const parallelBottom = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p2.y },
+                    p2: { x: p2.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const parallelLeft = new Line({
+                    delay: parallelTop.totalTime - overlap,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p1.y },
+                    p2: { x: p1.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const parallelRight = new Line({
+                    delay: parallelTop.totalTime - overlap,
+                    time: time / 4,
+                    p1: { x: p2.x, y: p1.y },
+                    p2: { x: p2.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                lines = [parallelTop, parallelBottom, parallelLeft, parallelRight];
+                break;
+
+            case "windmill":
+                // All four lines launch simultaneously from corners
+                const windmillLine1 = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p1.y },
+                    p2: { x: p2.x, y: p1.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const windmillLine2 = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p2.x, y: p1.y },
+                    p2: { x: p2.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const windmillLine3 = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p2.x, y: p2.y },
+                    p2: { x: p1.x, y: p2.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                const windmillLine4 = new Line({
+                    delay,
+                    time: time / 4,
+                    p1: { x: p1.x, y: p2.y },
+                    p2: { x: p1.x, y: p1.y },
+                    color,
+                    lineWidth,
+                    equation,
+                });
+                lines = [windmillLine1, windmillLine2, windmillLine3, windmillLine4];
+                break;
+
+            default:
+                // Fallback to branched
+                const defaultLine1 = topLine();
+                const defaultLine2 = leftLine();
+                const defaultLine3 = rightLine(defaultLine1.totalTime - overlap);
+                const defaultLine4 = bottomLine(defaultLine1.totalTime - overlap);
+                lines = [defaultLine1, defaultLine2, defaultLine3, defaultLine4];
+        }
+
+        instances.push(...lines);
+        return Math.max(...lines.map((line) => line.totalTime));
     };
 }
+
 /**
  *
  * @param {Object} param0
