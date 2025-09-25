@@ -1,16 +1,11 @@
-const gamepadDisp = document.querySelector("#gamepad-display");
-
-/**
- * @type {Gamepad | null}
- */
-let gp = null;
-let index = 0;
+let gamepadCount = 0;
+let gamepadDisplays = [];
 
 window.addEventListener("gamepadconnected", (e) => {
-    gp = navigator.getGamepads()[e.gamepad.index];
-    index = e.gamepad.index;
-    console.log(gp);
-    window.gp = gp;
+    gamepadCount++;
+    let p = document.createElement("p");
+    gamepadDisplays.push(p);
+    document.body.append(p);
 });
 
 /**
@@ -44,16 +39,19 @@ export default function mapController(gp) {
 }
 
 function game() {
-    gp = navigator.getGamepads()[index];
-    if (gp !== null) {
-        let string = "";
-        let controllerMap = mapController(gp);
-        Object.keys(controllerMap).forEach((val, i) => {
-            string += `${val}: ${controllerMap[val]}, ${i % 2 === 0 ? "" : "<br>"}`;
-        });
-        gamepadDisp.innerHTML = string.slice(0, -2);
-    } else {
-        gamepadDisp.innerHTML = "Press A to connect";
+    for (let i = 0; i < gamepadCount; i++) {
+        let gamepadDisp = gamepadDisplays[i];
+        let gp = navigator.getGamepads()[i];
+        if (gp !== null) {
+            let string = "";
+            let controllerMap = mapController(gp);
+            Object.keys(controllerMap).forEach((val, i) => {
+                string += `${val}: ${controllerMap[val]}, ${i % 2 === 0 ? "" : "<br>"}`;
+            });
+            gamepadDisp.innerHTML = string.slice(0, -2);
+        } else {
+            gamepadDisp.innerHTML = "Press A to connect";
+        }
     }
     requestAnimationFrame(game);
 }
