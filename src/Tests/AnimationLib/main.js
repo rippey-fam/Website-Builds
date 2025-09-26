@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 overlap: 1000,
                 color: "red",
                 lineWidth: 5,
-                equation: "easeInOut",
+                equation: "easeOutBack",
                 instances,
             }),
         )
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 p2: { x: 400, y: 300 },
                 color: "blue",
                 lineWidth: 10,
-                equation: "easeOutBounce",
+                equation: "easeOut",
                 instances,
             }),
         )
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 clockwise: true,
                 color: "green",
                 lineWidth: 8,
-                equation: "easeOut",
+                equation: "easeOutBounce",
                 instances,
             }),
         )
