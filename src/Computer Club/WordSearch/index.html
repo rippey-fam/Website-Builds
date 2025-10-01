@@ -7,7 +7,7 @@
         <style>
             body {
                 display: grid;
-                grid-template-columns: 1fr auto;
+                grid-template-columns: auto 1fr;
                 grid-template-rows: 1fr;
                 gap: 10px;
             }
@@ -15,11 +15,23 @@
                 border: 5px solid black;
                 border-radius: 3px;
             }
+            div {
+                border: 5px solid black;
+                border-radius: 3px;
+                text-align: center;
+                margin: 0px;
+                padding: 2px;
+                width: auto;
+            }
         </style>
     </head>
     <body>
         <script src="main.js"></script>
-        <canvas width="1000" height="700"></canvas>
-        <span>Found Words</span>
+        <canvas width="1000" height="700" id="canvas"></canvas>
+        <div>
+            <h3>Word Bank:</h3>
+            <br />
+            <span id="word-bank"></span>
+        </div>
     </body>
 </html>
