@@ -121,6 +121,79 @@ class Slot {
     }
 }
 
+class CollisionGrid {
+    constructor(x, y, spacing, squareSize, gridSize) {
+        this.x = x;
+        this.y = y;
+        this.spacing = spacing;
+        this.squareSize = squareSize;
+        this.gridSize = gridSize;
+    }
+    inArea(x, y, area) {
+        if (area.p1.x <= x && x <= area.p2.x) {
+            if (area.p1.y <= y && y <= area.p2.y) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * @param {*} x
+     * @param {*} y
+     */
+    getAbsolute(x, y) {
+        if (
+            !this.inArea(x, y, {
+                p1: { x: this.x, y: this.y },
+                p2: {
+                    x: this.x + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
+                    y: this.y + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
+                },
+            })
+        )
+            return false;
+
+        let xOut, yOut, i1, j1;
+
+        for (let i = 0; i < this.gridSize; i++) {
+            if (
+                this.inArea(x, y, {
+                    p1: { x: this.x + i * (this.squareSize + this.spacing), y: this.y },
+                    p2: {
+                        x: this.x + (i + 1) * this.squareSize + i * this.spacing,
+                        y: this.y + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
+                    },
+                })
+            ) {
+                i1 = i;
+            }
+        }
+        if (i1 === undefined) return false;
+
+        for (let j = 0; j < this.gridSize; j++) {
+            if (
+                this.inArea(x, y, {
+                    p1: {
+                        x: this.x + i1 * (this.squareSize + this.spacing),
+                        y: this.y + j * (this.squareSize + this.spacing),
+                    },
+                    p2: {
+                        x: this.x + (i1 + 1) * this.squareSize + i1 * this.spacing,
+                        y: this.y + (j + 1) * this.squareSize + j * this.spacing,
+                    },
+                })
+            ) {
+                j1 = j;
+                xOut = this.x + i1 * (this.squareSize + this.spacing) + this.squareSize / 2;
+                yOut = this.y + j1 * (this.squareSize + this.spacing) + this.squareSize / 2;
+            }
+        }
+        if (j1 === undefined) return false;
+        return { x: xOut, y: yOut };
+    }
+    getRelative() {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     /**
      * @type {HTMLCanvasElement}
@@ -128,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight * 0.91;
-    canvas.width = canvas.height;
+    canvas.width = canvas.height * 1.5;
 
     let puzzles = [
         ["hi", "hello", "hola", "hey", "sup"],
@@ -144,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return b.length - a.length;
     });
     console.log(words);
-    const grid = new WordGrid(words[0].length + 1);
+    const grid = new WordGrid(Math.max(words[0].length + 1, 10));
     words.sort(() => Math.random() - 0.5);
     let directions = ["E", "S", "SE"];
     function findPos(word, grid) {
@@ -207,31 +280,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let lettersInPuzzle = new Set();
+    let wordBankEl = document.querySelector("#word-bank");
 
     for (const word of words) {
         findPos(word, grid);
         for (const letter of word) {
             lettersInPuzzle.add(letter.toUpperCase());
         }
+        wordBankEl.innerHTML += `<br />${word.toUpperCase()}`;
     }
     grid.fill(Array.from(lettersInPuzzle), 3);
 
-    let instances = [grid, new Slot({ x: 100, y: 100 }, { x: 0, y: 0 }, 10)];
+    let instances = [grid];
+    /**
+     * @type {null | Slot}
+     */
+    let currentSlot = null;
 
     function game() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const instance of instances) {
-            if (instance instanceof WordGrid) {
-                instance.draw(ctx, canvas.width, canvas.height);
-            } else if (instance instanceof Slot) {
-                instance.draw(ctx);
-            }
+            if (instance instanceof WordGrid) instance.draw(ctx, canvas.width, canvas.height);
+            else if (instance instanceof Slot) instance.draw(ctx);
+
+            if (currentSlot !== null) currentSlot.draw(ctx);
         }
         requestAnimationFrame(game);
     }
     game();
 
-    let currentSlot = null;
+    const cellSize = Math.min(canvas.width, canvas.height) / grid.size;
+    const offsetX = (canvas.width - cellSize * grid.size) / 2;
+    const offsetY = (canvas.height - cellSize * grid.size) / 2;
+
+    const collisionGrid = new CollisionGrid(
+        offsetX, // x position (same as WordGrid offset)
+        offsetY, // y position (same as WordGrid offset)
+        0, // spacing (0 since letters are adjacent)
+        cellSize, // squareSize (same as letter cell size)
+        grid.size, // gridSize (same number of cells as WordGrid)
+    );
 
     let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
     document.addEventListener("mousemove", (e) => {
@@ -239,16 +327,26 @@ document.addEventListener("DOMContentLoaded", () => {
         mouse.x = e.x - canvasBounds.x;
         mouse.y = e.y - canvasBounds.y;
         if (currentSlot !== null) {
-            currentSlot.p2 = { x: mouse.x, y: mouse.y };
+            let a = collisionGrid.getAbsolute(mouse.x, mouse.y);
+            if (a) {
+                currentSlot.p2 = { x: a.x, y: a.y };
+            }
+            // currentSlot.p2 = { x: mouse.x, y: mouse.y }
         }
     });
 
     document.addEventListener("mousedown", () => {
-        currentSlot = new Slot({ x: mouse.x, y: mouse.y }, { x: mouse.x, y: mouse.y }, 10);
-        instances.push(currentSlot);
+        let a = collisionGrid.getAbsolute(mouse.x, mouse.y);
+        if (a) {
+            currentSlot = new Slot(
+                { x: a.x, y: a.y },
+                { x: mouse.x, y: mouse.y },
+                (Math.min(canvas.width, canvas.height) / grid.size) * 0.35,
+            );
+        }
     });
     document.addEventListener("mouseup", () => {
-        instances.pop();
+        instances.push(currentSlot);
         currentSlot = null;
     });
 });

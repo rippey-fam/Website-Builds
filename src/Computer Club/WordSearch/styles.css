@@ -1,0 +1,20 @@
+body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr;
+    gap: 10px;
+}
+canvas {
+    border: 5px solid black;
+    border-radius: 3px;
+}
+.word-bank-wrapper {
+    border: 5px solid black;
+    border-radius: 3px;
+    text-align: center;
+    margin: 0px;
+    padding: 2px;
+    width: auto;
+}
+#word-bank {
+}

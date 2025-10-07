@@ -4,32 +4,13 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
-        <style>
-            body {
-                display: grid;
-                grid-template-columns: auto 1fr;
-                grid-template-rows: 1fr;
-                gap: 10px;
-            }
-            canvas {
-                border: 5px solid black;
-                border-radius: 3px;
-            }
-            div {
-                border: 5px solid black;
-                border-radius: 3px;
-                text-align: center;
-                margin: 0px;
-                padding: 2px;
-                width: auto;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <script src="main.js"></script>
         <canvas width="1000" height="700" id="canvas"></canvas>
-        <div>
-            <h3>Word Bank:</h3>
+        <div class="word-bank-wrapper">
+            <h2 class="word-bank-header">Word Bank:</h2>
             <br />
             <span id="word-bank"></span>
         </div>
