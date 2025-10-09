@@ -66,7 +66,9 @@ class Slot {
         this.p2 = p2;
         this.radius = radius;
     }
-    // Function to draw a slot (rounded rectangle/stadium shape)
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     */
     draw(ctx) {
         let p1 = this.p1;
         let p2 = this.p2;
@@ -110,6 +112,8 @@ class Slot {
         const angle2 = Math.atan2(-py, -px);
 
         // Draw the slot
+        ctx.strokeStyle = "#6C97D3";
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
@@ -322,16 +326,30 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    function snap(mouse, origin) {
+        let dx = mouse.x - origin.x;
+        let dy = mouse.y - origin.y;
+
+        let angle = Math.atan2(dy, dx);
+        let increment = Math.PI / 4;
+        let snapped = Math.round(angle / increment) * increment;
+        let deltaA = snapped - angle;
+        let dist = Math.hypot(dx, dy);
+        let b = dist * Math.cos(deltaA);
+        let x = b * Math.cos(snapped);
+        let y = b * Math.sin(snapped);
+        return { x: origin.x + x, y: origin.y + y };
+    }
     document.addEventListener("mousemove", (e) => {
         let canvasBounds = canvas.getBoundingClientRect();
         mouse.x = e.x - canvasBounds.x;
         mouse.y = e.y - canvasBounds.y;
         if (currentSlot !== null) {
-            let a = collisionGrid.getAbsolute(mouse.x, mouse.y);
+            let snappedCoor = snap(mouse, currentSlot.p1);
+            let a = collisionGrid.getAbsolute(snappedCoor.x, snappedCoor.y);
             if (a) {
                 currentSlot.p2 = { x: a.x, y: a.y };
             }
-            // currentSlot.p2 = { x: mouse.x, y: mouse.y }
         }
     });
 
@@ -341,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentSlot = new Slot(
                 { x: a.x, y: a.y },
                 { x: mouse.x, y: mouse.y },
-                (Math.min(canvas.width, canvas.height) / grid.size) * 0.35,
+                (Math.min(canvas.width, canvas.height) / grid.size) * 0.3,
             );
         }
     });
