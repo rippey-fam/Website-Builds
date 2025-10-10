@@ -1,7 +1,7 @@
-import { CollisionGrid } from "./CollisionGrid.js";
-import { Slot } from "./Slot.js";
-import { shuffle, snap } from "./utils.js";
-import { WordGrid } from "./WordGrid.js";
+import { CollisionGrid } from "./CollisionGrid";
+import { shuffle } from "./main";
+import { Slot } from "./Slot";
+import { WordGrid } from "./WordGrid";
 
 document.addEventListener("DOMContentLoaded", () => {
     /**
@@ -127,10 +127,24 @@ document.addEventListener("DOMContentLoaded", () => {
         offsetY, // y position (same as WordGrid offset)
         0, // spacing (0 since letters are adjacent)
         cellSize, // squareSize (same as letter cell size)
-        grid.size, // gridSize (same number of cells as WordGrid)
+        grid.size,
     );
 
     let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    function snap(mouse, origin) {
+        let dx = mouse.x - origin.x;
+        let dy = mouse.y - origin.y;
+
+        let angle = Math.atan2(dy, dx);
+        let increment = Math.PI / 4;
+        let snapped = Math.round(angle / increment) * increment;
+        let deltaA = snapped - angle;
+        let dist = Math.hypot(dx, dy);
+        let b = dist * Math.cos(deltaA);
+        let x = b * Math.cos(snapped);
+        let y = b * Math.sin(snapped);
+        return { x: origin.x + x, y: origin.y + y };
+    }
     document.addEventListener("mousemove", (e) => {
         let canvasBounds = canvas.getBoundingClientRect();
         mouse.x = e.x - canvasBounds.x;
@@ -158,17 +172,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("mouseup", () => {
         let start = collisionGrid.getRelative(currentSlot.p1.x, currentSlot.p1.y);
         let end = collisionGrid.getRelative(currentSlot.p2.x, currentSlot.p2.y);
-        let string = "";
-        console.log("letters selected", Math.max(Math.abs(start.i - end.i) + 1, Math.abs(start.j - end.j) + 1));
-        let i1 = start.i;
-        let j1 = start.j;
-        string += grid.getLetter(i1, j1);
-        while (!(i1 === end.i && j1 === end.j)) {
-            i1 += Math.sign(end.i - start.i);
-            j1 += Math.sign(end.j - start.j);
-            string += grid.getLetter(i1, j1);
-        }
-        console.log(string);
+
+        console.log(start, end);
         currentSlot = null;
     });
 });
