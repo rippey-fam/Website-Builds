@@ -29,3 +29,8 @@ canvas {
     width: auto;
     background-color: white;
 }
+
+.found-word {
+    text-decoration: line-through;
+    color: #777;
+}

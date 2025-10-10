@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         for (const letter of word) {
             lettersInPuzzle.add(letter.toUpperCase());
         }
-        wordBankEl.innerHTML += `<br />${word.toUpperCase()}`;
+        wordBankEl.innerHTML += `<span id="${word}">${word.toUpperCase()}<span><br />`;
     }
     grid.fill(Array.from(lettersInPuzzle), 3);
 
@@ -159,7 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let start = collisionGrid.getRelative(currentSlot.p1.x, currentSlot.p1.y);
         let end = collisionGrid.getRelative(currentSlot.p2.x, currentSlot.p2.y);
         let string = "";
-        console.log("letters selected", Math.max(Math.abs(start.i - end.i) + 1, Math.abs(start.j - end.j) + 1));
         let i1 = start.i;
         let j1 = start.j;
         string += grid.getLetter(i1, j1);
@@ -168,7 +167,18 @@ document.addEventListener("DOMContentLoaded", () => {
             j1 += Math.sign(end.j - start.j);
             string += grid.getLetter(i1, j1);
         }
-        console.log(string);
+        let foundWord = words.find((word) => {
+            return (
+                word.toUpperCase() === string.toUpperCase() ||
+                word.toUpperCase() === string.split("").reverse().join("").toUpperCase()
+            );
+        });
+        if (foundWord) {
+            console.log(foundWord);
+            document.getElementById(foundWord).classList.add("found-word");
+            instances.push(currentSlot);
+        }
+
         currentSlot = null;
     });
 });
