@@ -1,201 +1,9 @@
-class WordGrid {
-    constructor(size = 1) {
-        this.grid = new Array(size);
-        for (let i = 0; i < this.grid.length; i++) {
-            this.grid[i] = new Array(size).fill("");
-        }
-    }
-    setLetter(x, y, val) {
-        this.grid[y][x] = val.toUpperCase();
-    }
-    getLetter(x, y) {
-        return this.grid[y][x];
-    }
-    enlarge(amount = 1) {
-        let size = this.grid.length;
-        for (let i = 0; i < amount; i++) {
-            this.grid.push(new Array(size).fill(""));
-        }
-        for (const item of this.grid) {
-            for (let j = 0; j < amount; j++) {
-                item.push("");
-            }
-        }
-    }
-    display() {
-        console.log(JSON.stringify(this.grid).split("],").join("],\n"));
-    }
-    get size() {
-        return this.grid.length;
-    }
-    fill(weightedLettersArray = null, weight = 1) {
-        let alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split("");
-        if (weightedLettersArray !== null) {
-            for (let i = 0; i < weight; i++) {
-                alphabet.push(...weightedLettersArray);
-            }
-        }
-        this.grid.forEach((val, i) => {
-            val.forEach((val2, j) => {
-                if (val2 === "") {
-                    this.grid[i][j] = alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
-                }
-            });
-        });
-    }
-    draw(ctx, width, height) {
-        const cellSize = Math.min(width, height) / this.size;
-        const offsetX = (width - cellSize * this.size) / 2;
-        const offsetY = (height - cellSize * this.size) / 2;
+import { CollisionGrid } from "./CollisionGrid.js";
+import { Slot } from "./Slot.js";
+import { WordGrid } from "./WordGrid.js";
 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = `${cellSize * 0.5}px Arial`;
-
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                ctx.fillText(this.getLetter(j, i), offsetX + (j + 0.5) * cellSize, offsetY + (i + 0.5) * cellSize);
-            }
-        }
-    }
-}
-
-class Slot {
-    constructor(p1, p2, radius) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.radius = radius;
-    }
-    /**
-     * @param {CanvasRenderingContext2D} ctx
-     */
-    draw(ctx) {
-        let p1 = this.p1;
-        let p2 = this.p2;
-        let radius = this.radius;
-        // Calculate the distance between points
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        // Handle degenerate case (points are too close)
-        if (dist < 0.001) {
-            ctx.beginPath();
-            ctx.arc(p1.x, p1.y, radius, 0, Math.PI * 2);
-            ctx.closePath();
-            return;
-        }
-
-        // Calculate unit vector along the line
-        const ux = dx / dist;
-        const uy = dy / dist;
-
-        // Calculate perpendicular unit vector (rotated 90° counterclockwise)
-        const px = -uy;
-        const py = ux;
-
-        // Calculate the four corner points of the slot body
-        const x1 = p1.x + px * radius;
-        const y1 = p1.y + py * radius;
-
-        const x2 = p2.x + px * radius;
-        const y2 = p2.y + py * radius;
-
-        const x3 = p2.x - px * radius;
-        const y3 = p2.y - py * radius;
-
-        const x4 = p1.x - px * radius;
-        const y4 = p1.y - py * radius;
-
-        // Calculate angles for the arcs
-        const angle1 = Math.atan2(py, px);
-        const angle2 = Math.atan2(-py, -px);
-
-        // Draw the slot
-        ctx.strokeStyle = "#6C97D3";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.arc(p2.x, p2.y, radius, angle1, angle2, true);
-        ctx.lineTo(x4, y4);
-        ctx.arc(p1.x, p1.y, radius, angle2, angle1, true);
-        ctx.closePath();
-        ctx.stroke();
-    }
-}
-
-class CollisionGrid {
-    constructor(x, y, spacing, squareSize, gridSize) {
-        this.x = x;
-        this.y = y;
-        this.spacing = spacing;
-        this.squareSize = squareSize;
-        this.gridSize = gridSize;
-    }
-    inArea(x, y, area) {
-        if (area.p1.x <= x && x <= area.p2.x) {
-            if (area.p1.y <= y && y <= area.p2.y) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * @param {*} x
-     * @param {*} y
-     */
-    getAbsolute(x, y) {
-        if (
-            !this.inArea(x, y, {
-                p1: { x: this.x, y: this.y },
-                p2: {
-                    x: this.x + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
-                    y: this.y + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
-                },
-            })
-        )
-            return false;
-
-        let xOut, yOut, i1, j1;
-
-        for (let i = 0; i < this.gridSize; i++) {
-            if (
-                this.inArea(x, y, {
-                    p1: { x: this.x + i * (this.squareSize + this.spacing), y: this.y },
-                    p2: {
-                        x: this.x + (i + 1) * this.squareSize + i * this.spacing,
-                        y: this.y + this.gridSize * this.squareSize + (this.gridSize - 1) * this.spacing,
-                    },
-                })
-            ) {
-                i1 = i;
-            }
-        }
-        if (i1 === undefined) return false;
-
-        for (let j = 0; j < this.gridSize; j++) {
-            if (
-                this.inArea(x, y, {
-                    p1: {
-                        x: this.x + i1 * (this.squareSize + this.spacing),
-                        y: this.y + j * (this.squareSize + this.spacing),
-                    },
-                    p2: {
-                        x: this.x + (i1 + 1) * this.squareSize + i1 * this.spacing,
-                        y: this.y + (j + 1) * this.squareSize + j * this.spacing,
-                    },
-                })
-            ) {
-                j1 = j;
-                xOut = this.x + i1 * (this.squareSize + this.spacing) + this.squareSize / 2;
-                yOut = this.y + j1 * (this.squareSize + this.spacing) + this.squareSize / 2;
-            }
-        }
-        if (j1 === undefined) return false;
-        return { x: xOut, y: yOut };
-    }
-    getRelative() {}
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -207,14 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.height = window.innerHeight * 0.91;
     canvas.width = canvas.height * 1.5;
 
-    let puzzles = [
+    let puzzles = shuffle([
         ["hi", "hello", "hola", "hey", "sup"],
         ["cat", "dog", "mouse", "elephant", "giraffe", "tiger", "lion"],
         ["javascript", "python", "java", "csharp", "ruby", "html", "css", "php"],
         ["red", "blue", "green", "yellow", "purple", "orange", "black", "white"],
         ["apple", "banana", "grape", "orange", "kiwi", "mango", "peach", "pear"],
         ["soccer", "basketball", "baseball", "tennis", "golf", "hockey", "football"],
-    ].sort(() => Math.random() - 0.5);
+    ]);
 
     let words = puzzles[0];
     words.sort((a, b) => {
@@ -358,13 +166,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (a) {
             currentSlot = new Slot(
                 { x: a.x, y: a.y },
-                { x: mouse.x, y: mouse.y },
+                { x: a.x, y: a.y },
                 (Math.min(canvas.width, canvas.height) / grid.size) * 0.3,
             );
         }
     });
+
     document.addEventListener("mouseup", () => {
-        instances.push(currentSlot);
+        let start = collisionGrid.getRelative(currentSlot.p1.x, currentSlot.p1.y);
+        let end = collisionGrid.getRelative(currentSlot.p2.x, currentSlot.p2.y);
+        console.log(start, end);
         currentSlot = null;
     });
 });
