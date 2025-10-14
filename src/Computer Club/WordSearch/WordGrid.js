@@ -28,8 +28,13 @@ export class WordGrid {
     get size() {
         return this.grid.length;
     }
-    fill(weightedLettersArray = null, weight = 1) {
-        let alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split("");
+    fill(useAlphabet, weightedLettersArray = null, weight = 1) {
+        let alphabet;
+        if (useAlphabet) {
+            alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split("");
+        } else {
+            alphabet = [];
+        }
         if (weightedLettersArray !== null) {
             for (let i = 0; i < weight; i++) {
                 alphabet.push(...weightedLettersArray);
@@ -38,7 +43,8 @@ export class WordGrid {
         this.grid.forEach((val, i) => {
             val.forEach((val2, j) => {
                 if (val2 === "") {
-                    this.grid[i][j] = alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
+                    // this.grid[i][j] = alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
+                    this.grid[i][j] = "#";
                 }
             });
         });
@@ -50,7 +56,11 @@ export class WordGrid {
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.font = `${cellSize * 0.5}px Arial`;
+        try {
+            ctx.font = `${cellSize * 0.5}px 'Poppins', sans-serif`;
+        } catch {
+            ctx.font = `${cellSize * 0.5}px Arial`;
+        }
 
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {

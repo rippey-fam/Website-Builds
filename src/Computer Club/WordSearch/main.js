@@ -12,8 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.height = window.innerHeight * 0.91;
     canvas.width = canvas.height * 1.5;
 
+    /**
+     * @type {"easy"|"normal"|"hard"|"spicy"}
+     */
+    let difficulty = "hard";
+
     let puzzles = shuffle([
-        ["hi", "hello", "hola", "hey", "sup"],
         ["cat", "dog", "mouse", "elephant", "giraffe", "tiger", "lion"],
         ["javascript", "python", "java", "csharp", "ruby", "html", "css", "php"],
         ["red", "blue", "green", "yellow", "purple", "orange", "black", "white"],
@@ -26,22 +30,91 @@ document.addEventListener("DOMContentLoaded", () => {
         return b.length - a.length;
     });
     console.log(words);
-    const grid = new WordGrid(Math.max(words[0].length + 1, 10));
+    let grid;
+    switch (difficulty) {
+        case "easy":
+            grid = new WordGrid(words[0].length + 1);
+            break;
+        case "normal":
+            grid = new WordGrid(Math.max(words[0].length + 1, 10));
+            break;
+        case "hard":
+            grid = new WordGrid(Math.max(words[0].length + 1, 10));
+            break;
+        case "spicy":
+            grid = new WordGrid(Math.max(words[0].length + 1, 15));
+            break;
+        default:
+            grid = new WordGrid(Math.max(words[0].length + 1, 10));
+            break;
+    }
     words.sort(() => Math.random() - 0.5);
-    let directions = ["E", "S", "SE"];
+    let directions = [];
+    switch (difficulty) {
+        case "easy":
+            directions.push("S", "E");
+            break;
+        case "normal":
+            directions.push("S", "E", "SE");
+            break;
+        case "hard":
+            directions.push("N", "NE", "E", "SE", "S", "SW", "W", "NW");
+            break;
+        case "spicy":
+            directions.push("N", "NE", "E", "SE", "S", "SW", "W", "NW");
+            break;
+        default:
+            directions.push("S", "E", "SE");
+            break;
+    }
     function findPos(word, grid) {
         let good;
         do {
             let range = grid.size - word.length;
             directions.sort(() => Math.random() - 0.5);
             for (const direction of directions) {
-                let positions = new Array(range).fill(0);
-                positions = positions.map((v, i) => i);
-                positions.sort(() => Math.random() - 0.5);
-                for (let i = 0; i < range; i++) {
-                    for (let j = 0; j < range; j++) {
-                        let x = positions[i];
-                        let y = positions[j];
+                let xPosition;
+                let yPosition;
+                switch (direction) {
+                    case "N":
+                        xPosition = new Array(grid.size).fill(0).map((v, i) => i);
+                        yPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        break;
+                    case "NE":
+                        xPosition = new Array(range).fill(0).map((v, i) => i);
+                        yPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        break;
+                    case "E":
+                        xPosition = new Array(range).fill(0).map((v, i) => i);
+                        yPosition = new Array(grid.size).fill(0).map((v, i) => i);
+                        break;
+                    case "SE":
+                        xPosition = new Array(range).fill(0).map((v, i) => i);
+                        yPosition = new Array(range).fill(0).map((v, i) => i);
+                        break;
+                    case "S":
+                        xPosition = new Array(grid.size).fill(0).map((v, i) => i);
+                        yPosition = new Array(range).fill(0).map((v, i) => i);
+                        break;
+                    case "SW":
+                        xPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        yPosition = new Array(range).fill(0).map((v, i) => i);
+                        break;
+                    case "W":
+                        xPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        yPosition = new Array(grid.size).fill(0).map((v, i) => i);
+                        break;
+                    case "NW":
+                        xPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        yPosition = new Array(range).fill(0).map((v, i) => grid.size - 1 - i);
+                        break;
+                }
+                xPosition.sort(() => Math.random() - 0.5);
+                yPosition.sort(() => Math.random() - 0.5);
+                for (let i = 0; i < xPosition.length; i++) {
+                    for (let j = 0; j < yPosition.length; j++) {
+                        let x = xPosition[i];
+                        let y = yPosition[j];
                         let x1 = x;
                         let y1 = y;
                         good = true;
@@ -58,6 +131,24 @@ document.addEventListener("DOMContentLoaded", () => {
                                     break;
                                 case "S":
                                     y1++;
+                                    break;
+                                case "N":
+                                    y1--;
+                                    break;
+                                case "NE":
+                                    x1++;
+                                    y1--;
+                                    break;
+                                case "SW":
+                                    x1--;
+                                    y1++;
+                                    break;
+                                case "W":
+                                    x1--;
+                                    break;
+                                case "NW":
+                                    x1--;
+                                    y1--;
                                     break;
                             }
                         }
@@ -77,6 +168,24 @@ document.addEventListener("DOMContentLoaded", () => {
                                     case "S":
                                         y1++;
                                         break;
+                                    case "N":
+                                        y1--;
+                                        break;
+                                    case "NE":
+                                        x1++;
+                                        y1--;
+                                        break;
+                                    case "SW":
+                                        x1--;
+                                        y1++;
+                                        break;
+                                    case "W":
+                                        x1--;
+                                        break;
+                                    case "NW":
+                                        x1--;
+                                        y1--;
+                                        break;
                                 }
                             }
                             return;
@@ -88,17 +197,35 @@ document.addEventListener("DOMContentLoaded", () => {
         } while (!good);
     }
 
-    let lettersInPuzzle = new Set();
+    let lettersInPuzzle = [];
     let wordBankEl = document.querySelector("#word-bank");
 
     for (const word of words) {
         findPos(word, grid);
         for (const letter of word) {
-            lettersInPuzzle.add(letter.toUpperCase());
+            lettersInPuzzle.push(letter.toUpperCase());
         }
         wordBankEl.innerHTML += `<span id="${word}">${word.toUpperCase()}<span><br />`;
     }
-    grid.fill(Array.from(lettersInPuzzle), 3);
+
+    switch (difficulty) {
+        case "easy":
+            grid.fill(true);
+            break;
+        case "normal":
+            grid.fill(true, lettersInPuzzle, 3);
+            break;
+        case "hard":
+            grid.fill(true, lettersInPuzzle, 5);
+            break;
+        case "spicy":
+            grid.fill(false, lettersInPuzzle, 1);
+            break;
+        default:
+            grid.fill(true, lettersInPuzzle, 3);
+            break;
+    }
+    grid.fill(lettersInPuzzle, 3, false);
 
     let instances = [grid];
     /**
