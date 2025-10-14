@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     /**
      * @type {"easy"|"normal"|"hard"|"spicy"}
      */
-    let difficulty = "hard";
+    let difficulty = ["easy", "normal", "hard", "spicy"][Math.round(Math.random() * 4)];
+    console.log("DIFFICULTY:", difficulty.toUpperCase());
 
     let puzzles = shuffle([
         ["cat", "dog", "mouse", "elephant", "giraffe", "tiger", "lion"],

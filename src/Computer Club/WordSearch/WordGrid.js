@@ -43,8 +43,7 @@ export class WordGrid {
         this.grid.forEach((val, i) => {
             val.forEach((val2, j) => {
                 if (val2 === "") {
-                    // this.grid[i][j] = alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
-                    this.grid[i][j] = "#";
+                    this.grid[i][j] = alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
                 }
             });
         });
