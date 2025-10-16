@@ -1,7 +1,7 @@
-import { CollisionGrid } from "./CollisionGrid.js";
-import { Slot } from "./Slot.js";
-import { shuffle, snap } from "./utils.js";
-import { WordGrid } from "./WordGrid.js";
+import { CollisionGrid } from "./scripts/CollisionGrid.js";
+import { Slot } from "./scripts/Slot.js";
+import { shuffle, snap } from "./scripts/utils.js";
+import { WordGrid } from "./scripts/WordGrid.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     /**
@@ -9,13 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight * 0.91;
+    canvas.height = window.innerHeight * 0.85;
     canvas.width = canvas.height * 1.5;
 
-    /**
-     * @type {"easy"|"normal"|"hard"|"spicy"}
-     */
-    let difficulty = ["easy", "normal", "hard", "spicy"][Math.round(Math.random() * 4)];
+    document.getElementById("regenerate").setAttribute("href", window.location.href);
+
+    const params = new URLSearchParams(window.location.search);
+    const difficulty = params.get("difficulty");
     console.log("DIFFICULTY:", difficulty.toUpperCase());
 
     let puzzles = shuffle([
@@ -272,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.addEventListener("mousedown", () => {
+    canvas.addEventListener("mousedown", () => {
         let a = collisionGrid.getAbsolute(mouse.x, mouse.y);
         if (a) {
             currentSlot = new Slot(
@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.addEventListener("mouseup", () => {
+    canvas.addEventListener("mouseup", () => {
         let start = collisionGrid.getRelative(currentSlot.p1.x, currentSlot.p1.y);
         let end = collisionGrid.getRelative(currentSlot.p2.x, currentSlot.p2.y);
         let string = "";
