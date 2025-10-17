@@ -1,4 +1,5 @@
 import { CollisionGrid } from "./scripts/CollisionGrid.js";
+import puzzles from "./scripts/puzzles.js";
 import { Slot } from "./scripts/Slot.js";
 import { shuffle, snap } from "./scripts/utils.js";
 import { WordGrid } from "./scripts/WordGrid.js";
@@ -18,15 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const difficulty = params.get("difficulty");
     console.log("DIFFICULTY:", difficulty.toUpperCase());
 
-    let puzzles = shuffle([
-        ["cat", "dog", "mouse", "elephant", "giraffe", "tiger", "lion"],
-        ["javascript", "python", "java", "csharp", "ruby", "html", "css", "php"],
-        ["red", "blue", "green", "yellow", "purple", "orange", "black", "white"],
-        ["apple", "banana", "grape", "orange", "kiwi", "mango", "peach", "pear"],
-        ["soccer", "basketball", "baseball", "tennis", "golf", "hockey", "football"],
-    ]);
+    let puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+    let words = puzzle.words;
 
-    let words = puzzles[0];
     words.sort((a, b) => {
         return b.length - a.length;
     });
