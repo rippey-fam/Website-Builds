@@ -152,7 +152,6 @@ const puzzles = [
             "dud",
             "cup",
             "cap",
-            "tip",
             "sip",
             "lip",
             "kit",
