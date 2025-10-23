@@ -1,8 +1,7 @@
 import { CollisionGrid } from "./scripts/CollisionGrid.js";
-import { FireworksDisplay } from "./scripts/FireworksDisplay.js";
 import puzzles from "./scripts/puzzles.js";
 import { Slot } from "./scripts/Slot.js";
-import { shuffle, snap } from "./scripts/utils.js";
+import { snap } from "./scripts/utils.js";
 import { WordGrid } from "./scripts/WordGrid.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,8 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     const canvas = document.querySelector("#canvas");
     const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight * 0.85;
-    canvas.width = canvas.height * 1.5;
+    function resize() {
+        canvas.height = window.innerHeight * 0.85;
+        canvas.width = canvas.height * 1.5;
+    }
+    window.addEventListener("resize", resize);
+    resize();
 
     document.getElementById("regenerate").setAttribute("href", window.location.href);
 
@@ -250,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
      * @type {null | Slot}
      */
     let currentSlot = null;
-
+    let gameOver = false;
     function game() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const instance of instances) {
@@ -259,7 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (currentSlot !== null) currentSlot.draw(ctx);
         }
-        requestAnimationFrame(game);
+        if (!gameOver) {
+            requestAnimationFrame(game);
+        }
     }
     game();
 
@@ -325,14 +330,10 @@ document.addEventListener("DOMContentLoaded", () => {
             foundWords.add(foundWord);
         }
         if (foundWords.size === words.length) {
-            const fireworks = new FireworksDisplay("fireworks-canvas");
-            setInterval(() => {
-                const x = Math.random() * window.innerWidth;
-                const targetY = window.innerHeight * 0.3;
-                fireworks.createFirework(x, targetY);
-            }, 600);
-
-            console.log("YOU WIN!!!");
+            const container = document.querySelector(".fireworks");
+            const fireworks = new Fireworks.default(container);
+            fireworks.start();
+            gameOver = true;
         }
 
         currentSlot = null;
