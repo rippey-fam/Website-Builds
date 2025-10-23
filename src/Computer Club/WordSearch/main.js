@@ -1,4 +1,5 @@
 import { CollisionGrid } from "./scripts/CollisionGrid.js";
+import { FireworksDisplay } from "./scripts/FireworksDisplay.js";
 import puzzles from "./scripts/puzzles.js";
 import { Slot } from "./scripts/Slot.js";
 import { shuffle, snap } from "./scripts/utils.js";
@@ -8,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /**
      * @type {HTMLCanvasElement}
      */
-    const canvas = document.querySelector("canvas");
+    const canvas = document.querySelector("#canvas");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight * 0.85;
     canvas.width = canvas.height * 1.5;
@@ -21,11 +22,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
     let words = puzzle.words;
+    if (puzzle.title !== "Three-letter words") {
+        switch (difficulty) {
+            case "easy":
+                words = words.sort(() => Math.random() - 0.5).slice(0, 1);
+                break;
+            case "normal":
+                words = words.sort(() => Math.random() - 0.5).slice(0, 7);
+                break;
+            case "hard":
+                words = words.sort(() => Math.random() - 0.5).slice(0, 10);
+                break;
+            case "spicy":
+                words = words.sort(() => Math.random() - 0.5).slice(0, 10);
+                break;
+            default:
+                words = words.sort(() => Math.random() - 0.5).slice(0, 7);
+                break;
+        }
+    }
+
+    let foundWords = new Set();
+    document.getElementsByClassName("word-bank-header")[0].innerText = puzzle.title + ":";
 
     words.sort((a, b) => {
         return b.length - a.length;
     });
-    console.log(words);
     let grid;
     switch (difficulty) {
         case "easy":
@@ -300,6 +322,17 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(foundWord);
             document.getElementById(foundWord).classList.add("found-word");
             instances.push(currentSlot);
+            foundWords.add(foundWord);
+        }
+        if (foundWords.size === words.length) {
+            const fireworks = new FireworksDisplay("fireworks-canvas");
+            setInterval(() => {
+                const x = Math.random() * window.innerWidth;
+                const targetY = window.innerHeight * 0.3;
+                fireworks.createFirework(x, targetY);
+            }, 600);
+
+            console.log("YOU WIN!!!");
         }
 
         currentSlot = null;

@@ -12,7 +12,7 @@ const puzzles = [
             "joker",
             "venom",
             "magneto",
-            "doc oct",
+            "dococt",
             "lexLuther",
             "redSkull",
         ],
