@@ -3,6 +3,7 @@ export class Slot {
         this.p1 = p1;
         this.p2 = p2;
         this.radius = radius;
+        this.color = "#6C97D3";
     }
     /**
      * @param {CanvasRenderingContext2D} ctx
@@ -16,7 +17,7 @@ export class Slot {
         const dy = p2.y - p1.y;
         const dist = Math.hypot(dx, dy);
 
-        ctx.strokeStyle = "#6C97D3";
+        ctx.strokeStyle = this.color;
         ctx.lineWidth = 3;
         // Handle degenerate case (points are too close)
         if (dist < 0.01) {

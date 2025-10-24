@@ -143,3 +143,8 @@ body {
     z-index: 10;
     pointer-events: none;
 }
+
+.extra-word {
+    color: rgb(71, 104, 71);
+    text-decoration: line-through;
+}

@@ -157,6 +157,7 @@ const puzzles = [
             "kit",
             "pit",
             "man",
+            "tip",
         ],
     },
     {

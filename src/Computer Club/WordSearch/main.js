@@ -3,6 +3,7 @@ import puzzles from "./scripts/puzzles.js";
 import { Slot } from "./scripts/Slot.js";
 import { snap } from "./scripts/utils.js";
 import { WordGrid } from "./scripts/WordGrid.js";
+import { wordList as dictionary } from "./scripts/words.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     /**
@@ -14,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.height = window.innerHeight * 0.85;
         canvas.width = canvas.height * 1.5;
     }
-    window.addEventListener("resize", resize);
     resize();
 
     document.getElementById("regenerate").setAttribute("href", window.location.href);
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (puzzle.title !== "Three-letter words") {
         switch (difficulty) {
             case "easy":
-                words = words.sort(() => Math.random() - 0.5).slice(0, 5);
+                words = words.sort(() => Math.random() - 0.5).slice(0, 1);
                 break;
             case "normal":
                 words = words.sort(() => Math.random() - 0.5).slice(0, 7);
@@ -317,22 +317,58 @@ document.addEventListener("DOMContentLoaded", () => {
             j1 += Math.sign(end.j - start.j);
             string += grid.getLetter(i1, j1);
         }
-        let foundWord = words.find((word) => {
-            return (
+        let wordSearchWord = false;
+        for (let i = 0; i < words.length; i++) {
+            let word = words[i];
+            if (
                 word.toUpperCase() === string.toUpperCase() ||
                 word.toUpperCase() === string.split("").reverse().join("").toUpperCase()
-            );
-        });
-        if (foundWord) {
-            console.log(foundWord);
-            document.getElementById(foundWord).classList.add("found-word");
-            instances.push(currentSlot);
-            foundWords.add(foundWord);
+            ) {
+                wordSearchWord = true;
+                console.log(word);
+                document.getElementById(word).classList.add("found-word");
+                instances.push(currentSlot);
+                foundWords.add(word);
+            }
         }
+
+        if (!wordSearchWord) {
+            if (dictionary.has(string.toLowerCase())) {
+                console.log(string);
+                wordBankEl.innerHTML += `<span id="${string}" class = "extra-word" >${string.toUpperCase()}<span><br />`;
+                currentSlot.color = "rgb(71, 104, 71)";
+                instances.push(currentSlot);
+            }
+        }
+
         if (foundWords.size === words.length) {
             const container = document.querySelector(".fireworks");
             const fireworks = new Fireworks.default(container);
-            fireworks.start();
+            let count;
+            switch (difficulty) {
+                case "easy":
+                    count = 5;
+                    break;
+                case "normal":
+                    count = 10;
+                    break;
+                case "hard":
+                    count = 50;
+                    break;
+                case "spicy":
+                    count = 100;
+                    break;
+                default:
+                    count = 10;
+                    break;
+            }
+
+            fireworks.launch(count);
+            setTimeout(() => {
+                setInterval(() => {
+                    fireworks.launch(Math.floor(Math.random() * 3));
+                }, 600);
+            });
             gameOver = true;
         }
 
