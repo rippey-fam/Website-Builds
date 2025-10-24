@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (puzzle.title !== "Three-letter words") {
         switch (difficulty) {
             case "easy":
-                words = words.sort(() => Math.random() - 0.5).slice(0, 1);
+                words = words.sort(() => Math.random() - 0.5).slice(0, 5);
                 break;
             case "normal":
                 words = words.sort(() => Math.random() - 0.5).slice(0, 7);
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 setInterval(() => {
                     fireworks.launch(Math.floor(Math.random() * 3));
                 }, 600);
-            });
+            }, 1000);
             gameOver = true;
         }
 
