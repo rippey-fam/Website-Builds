@@ -19,7 +19,7 @@ class Player {
             x: 0,
             y: 0,
         };
-        this.speed = 0.05;
+        this.speed = 0.01;
     }
     input(leftJoy, rightJoy, a, x) {
         leftJoy = deadzone(leftJoy, 0.9);
