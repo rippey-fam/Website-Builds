@@ -13,7 +13,7 @@ class Player {
         this.y = y;
         this.radius = 15;
         this.w = 10;
-        this.h = 7;
+        this.h = 8;
         this.angle = 0;
         this.velocity = {
             x: 0,
@@ -60,7 +60,7 @@ class Player {
         let dy = this.y + this.radius * sin + (this.w / 2) * sinMinus;
 
         ctx.strokeStyle = "red";
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 6;
 
         ctx.fillStyle = "black";
         ctx.beginPath();
@@ -90,7 +90,7 @@ class Player {
  */
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
-canvas.height = window.innerHeight * 0.97;
+canvas.height = window.innerHeight * 0.95;
 canvas.width = window.innerWidth * 0.98;
 
 ctx.textAlign = "left";
