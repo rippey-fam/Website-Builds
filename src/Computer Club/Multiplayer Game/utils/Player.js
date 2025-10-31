@@ -20,12 +20,12 @@ export class Player {
             x: 0,
             y: 0,
         };
-        this.speed = 0.03;
+        this.speed = 0.1;
         this.playerNumber = playerNumber;
         this.color = this.colors[playerNumber];
         this.a = false;
         this.bullets = [];
-        this.pushBackForce = 0.5;
+        this.pushBackForce = 1;
         this.friction = 0.015;
     }
     input(leftJoy, rightJoy, a, x, vibration, bullets) {
@@ -53,7 +53,7 @@ export class Player {
                     h: 10,
                     round: true,
                     color: this.color,
-                    force: 1.5,
+                    force: 3,
                     parent: this,
                 }),
             );
