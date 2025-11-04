@@ -4,6 +4,30 @@ function clamp(variable, max, min) {
     return variable;
 }
 
+class BG {
+    constructor(width, height, count) {
+        this.stars = [];
+        for (let i = 0; i < count; i++) {
+            this.stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+            });
+        }
+    }
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        this.stars.forEach((star) => {
+            ctx.moveTo(star.x, star.y);
+            ctx.lineTo(star.x, star.y);
+        });
+        ctx.closePath();
+        ctx.stroke();
+    }
+}
+
 class Player {
     constructor(x, y) {
         this.x = x;
@@ -22,13 +46,29 @@ class Player {
             { x: 0, y: 5 },
             { x: 10, y: 8 },
         ];
+        this.space = false;
     }
-    input(keyMap) {
+    input(keyMap, bullets) {
         this.angle += keyMap.x * this.rotationSpeed;
         this.velocity.x += Math.cos(this.angle) * this.speed * keyMap.y;
         this.velocity.y += Math.sin(this.angle) * this.speed * keyMap.y;
         this.velocity.x = clamp(this.velocity.x, 10, -10);
         this.velocity.y = clamp(this.velocity.y, 10, -10);
+        if (!keyMap.space && this.space) {
+            bullets.push(
+                new Bullet({
+                    x: this.x + Math.cos(this.angle) * -11,
+                    y: this.y + Math.sin(this.angle) * -11,
+                    angle: this.angle - Math.PI,
+                    speed: 20,
+                    h: 5,
+                    w: 2,
+                    round: true,
+                    color: "white",
+                }),
+            );
+        }
+        this.space = keyMap.space;
     }
     move() {
         this.x += this.velocity.x;
@@ -64,15 +104,55 @@ class Player {
             points.push({ x: this.x + absx, y: this.y + absy });
         }
 
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 5;
         // a good shade of blue
-        ctx.strokeStyle = "#0055bcff";
+        ctx.strokeStyle = "#0055bc";
+        ctx.fillStyle = "rgb(21, 2, 28)";
         ctx.beginPath();
         ctx.moveTo(points[0].x, points[0].y);
         for (let i = 1; i < points.length; i++) {
             ctx.lineTo(points[i].x, points[i].y);
         }
         ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
+    }
+}
+
+class Bullet {
+    constructor({ x, y, angle, speed, w, h, round = true, color }) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.speed = speed;
+        this.w = w;
+        this.h = h;
+        this.round = round;
+        this.xAngle = Math.cos(angle);
+        this.yAngle = Math.sin(angle);
+        this.color = color;
+    }
+    move() {
+        this.x += this.xAngle * this.speed;
+        this.y += this.yAngle * this.speed;
+    }
+    act() {
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    draw(ctx) {
+        ctx.strokeStyle = this.color;
+        ctx.lineCap = this.round ? "round" : "square";
+        ctx.lineWidth = this.w;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.xAngle * this.h, this.y - this.yAngle * this.h);
         ctx.stroke();
     }
 }
@@ -93,17 +173,34 @@ resize();
 let keyDown = {
     x: 0,
     y: 0,
+    space: false,
 };
 function game() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    player.input(keyDown);
+
+    player.input(keyDown, bullets);
+
     player.move();
+    bullets.forEach((bullet) => bullet.move());
+
     player.act();
+    bullets.forEach((bullet) => {
+        let deleteBullet = bullet.act();
+        if (deleteBullet) {
+            bullets.filter((bullet2) => bullet2 !== bullet);
+        }
+    });
+
+    background.draw(ctx);
     player.draw(ctx);
+    bullets.forEach((bullet) => bullet.draw(ctx));
+
     requestAnimationFrame(game);
 }
 
+let bullets = [];
 let player = new Player(canvas.width / 2, canvas.height / 2);
+let background = new BG(canvas.width, canvas.height, 500);
 
 game();
 
@@ -117,6 +214,8 @@ document.addEventListener("keydown", (e) => {
         keyDown.x = -1;
     } else if (e.key === "ArrowRight") {
         keyDown.x = 1;
+    } else if ((e.key = " ")) {
+        keyDown.space = true;
     }
 });
 
@@ -129,5 +228,7 @@ document.addEventListener("keyup", (e) => {
         keyDown.x = 0;
     } else if (e.key === "ArrowRight") {
         keyDown.x = 0;
+    } else if ((e.key = " ")) {
+        keyDown.space = false;
     }
 });
