@@ -1,5 +1,5 @@
 export class Bullet {
-    constructor({ x, y, angle, speed, w, h, round = true, color, force, parent }) {
+    constructor({ x, y, angle, speed, w, h, round = true, color, force, parent, width, height }) {
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -12,15 +12,31 @@ export class Bullet {
         this.color = color;
         this.force = force;
         this.parent = parent;
+        this.width = width;
+        this.height = height;
     }
     move() {
         this.x += this.xAngle * this.speed;
         this.y += this.yAngle * this.speed;
     }
-    act() {
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-            return true;
+    act(wall) {
+        let prevX = this.x - this.xAngle * this.speed;
+        let prevY = this.y - this.yAngle * this.speed;
+
+        let stepX = (this.x - prevX) / this.speed;
+        let stepY = (this.y - prevY) / this.speed;
+
+        for (let i = 0; i < this.speed; i++) {
+            let checkX = prevX + stepX * i;
+            let checkY = prevY + stepY * i;
+            if (wall.check(checkX, checkY, this.w / 2)) {
+                return true;
+            }
         }
+        if (this.x < 0) this.x = this.width;
+        if (this.x > this.width) this.x = 0;
+        if (this.y < 0) this.y = this.height;
+        if (this.y > this.height) this.y = 0;
         return false;
     }
     /**

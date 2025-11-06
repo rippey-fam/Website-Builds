@@ -23,12 +23,15 @@ export class Player {
         this.speed = 0.1;
         this.playerNumber = playerNumber;
         this.color = this.colors[playerNumber];
-        this.a = false;
+        this.aButton = false;
+        this.bButton = false;
+        this.xButton = false;
         this.bullets = [];
         this.pushBackForce = 1;
         this.friction = 0.015;
+        this.message = "";
     }
-    input(leftJoy, rightJoy, a, x, vibration, bullets) {
+    input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
         if (leftJoy.x !== 0 && leftJoy.y !== 0) {
             this.angle = Math.atan2(leftJoy.y, leftJoy.x);
@@ -42,7 +45,7 @@ export class Player {
         this.velocity.x += rightJoy.x * this.speed * scalarX;
         this.velocity.y += rightJoy.y * this.speed * scalarY;
 
-        if (!a && this.a) {
+        if (!aButton && this.aButton) {
             bullets.push(
                 new Bullet({
                     x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
@@ -55,6 +58,8 @@ export class Player {
                     color: this.color,
                     force: 3,
                     parent: this,
+                    width: canvas.width,
+                    height: canvas.height,
                 }),
             );
             this.velocity.x -= Math.cos(this.angle) * this.pushBackForce;
@@ -66,17 +71,70 @@ export class Player {
                 strongMagnitude: 1.0,
             });
         }
-        this.a = a;
+        if (!xButton && this.xButton) {
+            bullets.push(
+                new Bullet({
+                    x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
+                    y: this.y + Math.sin(this.angle) * (this.radius + this.h + 10),
+                    angle: this.angle,
+                    speed: 7,
+                    w: 7,
+                    h: 15,
+                    round: true,
+                    color: this.color,
+                    force: 10,
+                    parent: this,
+                    width: canvas.width,
+                    height: canvas.height,
+                }),
+            );
+            this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 3;
+            this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 3;
+            vibration.playEffect("dual-rumble", {
+                startDelay: 0,
+                duration: 200,
+                weakMagnitude: 1.0,
+                strongMagnitude: 1.0,
+            });
+        }
+        if (!bButton && this.bButton) {
+            bullets.push(
+                new Bullet({
+                    x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
+                    y: this.y + Math.sin(this.angle) * (this.radius + this.h + 10),
+                    angle: this.angle,
+                    speed: 20,
+                    w: 3,
+                    h: 7,
+                    round: true,
+                    color: this.color,
+                    force: 1,
+                    parent: this,
+                    width: canvas.width,
+                    height: canvas.height,
+                }),
+            );
+            this.velocity.x -= (Math.cos(this.angle) * this.pushBackForce) / 3;
+            this.velocity.y -= (Math.sin(this.angle) * this.pushBackForce) / 3;
+            vibration.playEffect("dual-rumble", {
+                startDelay: 0,
+                duration: 50,
+                weakMagnitude: 1.0,
+                strongMagnitude: 1.0,
+            });
+        }
+        this.xButton = xButton;
+        this.bButton = bButton;
+        this.aButton = aButton;
     }
     move() {
         this.x += this.velocity.x;
         this.y += this.velocity.y;
-        this.bullets.forEach((bullet) => bullet.move());
         // friction
         this.velocity.x *= 1 - this.friction;
         this.velocity.y *= 1 - this.friction;
     }
-    act(allBullets) {
+    act(allBullets, wall) {
         if (this.x < -this.radius) {
             this.x = canvas.width + this.radius;
         }
@@ -89,6 +147,8 @@ export class Player {
         if (this.y > canvas.height + this.radius) {
             this.y = -this.radius;
         }
+
+        if (wall.check(this.x, this.y, this.radius)) this.message = "You Lose!";
 
         allBullets.forEach((bullet) => {
             let dx = this.x - bullet.x;
@@ -150,6 +210,12 @@ export class Player {
         ctx.stroke();
         ctx.fill();
 
-        this.bullets.forEach((bullet) => bullet.draw(ctx));
+        ctx.beginPath();
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
+        ctx.fillStyle = this.color;
+        ctx.fillText(this.message, this.x, this.y + this.radius - 50);
+        ctx.fill();
+        ctx.stroke();
     }
 }
