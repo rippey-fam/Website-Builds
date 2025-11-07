@@ -13,7 +13,7 @@ const firebaseConfig = {
     storageBucket: "back-attack-poc.firebasestorage.app",
     messagingSenderId: "415017495411",
     appId: "1:415017495411:web:f0e899582d762520c2b306",
-    measurementId: "G-HT0ECVG2HJ"
+    measurementId: "G-HT0ECVG2HJ",
 };
 
 // Initialize Firebase

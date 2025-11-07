@@ -5,15 +5,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Proof of Concept for Multiplayer Development</title>
         <style>
+            :root {
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+            }
+            p {
+                margin: 0px;
+            }
             #group-chat {
-                outline: 2px solid black;
+                border: 2px solid black;
+                border-radius: 10px;
                 min-height: 100px;
                 padding: 3px;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             }
             textarea {
-                width: 200px;
-                height: 100px;
+                width: 500px;
+                height: 75px;
                 margin: 10px 0;
+                border-radius: 10px;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                padding: 5px;
             }
 
             button {
@@ -27,6 +41,7 @@
 
             button:hover {
                 background-color: #45a049;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             }
         </style>
     </head>
