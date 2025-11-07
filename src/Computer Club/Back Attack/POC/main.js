@@ -1,17 +1,22 @@
 import { data } from "./firebase/firestore.js";
 
+let id = 0;
+
+data.onMessagesUpdate((messages) => {
+    document.querySelector("#group-chat").innerHTML = "";
+    messages = messages.sort((a, b) => a.id - b.id);
+    messages.forEach((message) => {
+        if (message.id > id) id = message.id;
+        document.querySelector("#group-chat").innerHTML += "<p>" + message.message + "<p>";
+    });
+});
+
 document.querySelector("#m-button").addEventListener("click", () => {
-    document.querySelector("#group-chat").innerHTML += "<p>M: " + document.querySelector("#m-textarea").value + "<p>";
-    data.setMessage({ name: "Matthew", message: "M: " + document.querySelector("#m-textarea").value });
+    data.setMessage({ id: ++id, message: "M: " + document.querySelector("#m-textarea").value });
     document.querySelector("#m-textarea").value = "";
 });
 
 document.querySelector("#s-button").addEventListener("click", () => {
-    document.querySelector("#group-chat").innerHTML += "<p>S: " + document.querySelector("#m-textarea").value + "<p>";
-    data.setMessage({ name: "Scott", message: "S: " + document.querySelector("#m-textarea").value });
+    data.setMessage({ id: ++id, message: "S: " + document.querySelector("#m-textarea").value });
     document.querySelector("#m-textarea").value = "";
-});
-
-data.onMessagesUpdate((messages) => {
-    console.log("Messages: ", messages);
 });

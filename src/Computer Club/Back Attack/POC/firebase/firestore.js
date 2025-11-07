@@ -36,9 +36,9 @@ console.log(db);
 })();
 
 export const data = {
-    async setMessage({ name, message }) {
+    async setMessage({ id, message }) {
         const newDoc = await db.collection("messages").add({
-            name,
+            id,
             message,
         });
         console.log("Added message: ", newDoc);
