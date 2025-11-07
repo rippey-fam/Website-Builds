@@ -61,3 +61,6 @@ Thumbs.db
 
 # TypeScript cache
 *.tsbuildinfo
+
+# IntelliJ IDEA / Webstorm
+.idea
