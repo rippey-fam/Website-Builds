@@ -11,3 +11,7 @@ document.querySelector("#s-button").addEventListener("click", () => {
     data.setMessage({ name: "Scott", message: "S: " + document.querySelector("#m-textarea").value });
     document.querySelector("#m-textarea").value = "";
 });
+
+data.onMessagesUpdate((messages) => {
+    console.log("Messages: ", messages);
+});

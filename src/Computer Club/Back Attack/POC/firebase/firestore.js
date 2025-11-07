@@ -43,4 +43,13 @@ export const data = {
         });
         console.log("Added message: ", newDoc);
     },
+    onMessagesUpdate(cb) {
+        db.collection("messages").onSnapshot((snap) => {
+            const messages = [];
+            snap.forEach((msg) => {
+                messages.push(msg.data());
+            });
+            cb(messages);
+        });
+    },
 };
