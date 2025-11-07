@@ -4,9 +4,36 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Proof of Concept for Multiplayer Development</title>
+        <style>
+            #group-chat {
+                outline: 2px solid black;
+                min-width: 100px;
+            }
+            textarea {
+                width: 200px;
+                height: 100px;
+                margin: 10px 0;
+            }
+
+            button {
+                padding: 8px 15px;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+        </style>
     </head>
     <body>
-        <textarea></textarea>
+        <p id="group-chat"></p>
+        <textarea id="m-textarea" placeholder="Put some text here"></textarea>
+        <br />
+        <button id="m-button">Text as M</button>
         <script src="main.js"></script>
     </body>
 </html>
