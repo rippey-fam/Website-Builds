@@ -34,3 +34,13 @@ console.log(db);
         console.log("Document written with ID: ", docRef.id);
     }
 })();
+
+export const data = {
+    async setMessage({ name, message }) {
+        const newDoc = await db.collection("messages").add({
+            name,
+            message,
+        });
+        console.log("Added message: ", newDoc);
+    },
+};
