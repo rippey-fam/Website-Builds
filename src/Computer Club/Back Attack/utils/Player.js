@@ -8,7 +8,16 @@ function deadzone(joy, min) {
 }
 
 export class Player {
-    colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "grey"];
+    colors = [
+        "hsl(0, 85%, 45%)", // Red
+        "hsl(210, 90%, 40%)", // Blue
+        "hsl(140, 70%, 35%)", // Green
+        "hsl(25, 95%, 50%)", // Orange
+        "hsl(180, 70%, 30%)", // Deep Teal
+        "hsl(300, 70%, 40%)", // Vibrant Magenta
+        "hsl(45, 90%, 45%)", // Gold/Mustard
+        "hsl(280, 50%, 30%)", // Deep Violet
+    ];
     constructor(x, y, playerNumber) {
         this.x = x;
         this.y = y;
@@ -28,8 +37,9 @@ export class Player {
         this.xButton = false;
         this.bullets = [];
         this.pushBackForce = 1;
+        this.place = 0;
         this.friction = 0.015;
-        this.message = "";
+        this.isDead = false;
     }
     input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
@@ -108,14 +118,14 @@ export class Player {
                     h: 7,
                     round: true,
                     color: this.color,
-                    force: 1,
+                    force: 1.5,
                     parent: this,
                     width: canvas.width,
                     height: canvas.height,
                 }),
             );
-            this.velocity.x -= (Math.cos(this.angle) * this.pushBackForce) / 3;
-            this.velocity.y -= (Math.sin(this.angle) * this.pushBackForce) / 3;
+            this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 0.5;
+            this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 0.5;
             vibration.playEffect("dual-rumble", {
                 startDelay: 0,
                 duration: 50,
@@ -148,7 +158,7 @@ export class Player {
             this.y = -this.radius;
         }
 
-        if (wall.check(this.x, this.y, this.radius)) this.message = "You Lose!";
+        if (wall.check(this.x, this.y, this.radius)) this.isDead = true;
 
         allBullets.forEach((bullet) => {
             let dx = this.x - bullet.x;
@@ -210,12 +220,31 @@ export class Player {
         ctx.stroke();
         ctx.fill();
 
-        ctx.beginPath();
-        ctx.font = "20px Arial";
-        ctx.textAlign = "center";
-        ctx.fillStyle = this.color;
-        ctx.fillText(this.message, this.x, this.y + this.radius - 50);
-        ctx.fill();
-        ctx.stroke();
+        if (this.place !== 0) {
+            ctx.beginPath();
+            ctx.font = "25px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = this.color;
+            let suffix = "";
+            if (10 <= this.place && this.place <= 20) {
+                suffix = "th";
+            } else {
+                let lastDigit = this.place - Math.floor(this.place / 10) * 10;
+                if (lastDigit === 1) {
+                    suffix = "st";
+                } else if (lastDigit === 2) {
+                    suffix = "nd";
+                } else if (lastDigit === 3) {
+                    suffix = "rd";
+                } else {
+                    suffix = "th";
+                }
+            }
+            let r = this.y < 75 ? 1 : -1;
+            ctx.fillText(this.place + suffix, this.x, this.y + r * (this.radius + 25));
+            ctx.fill();
+            ctx.stroke();
+        }
     }
 }
