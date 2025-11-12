@@ -62,7 +62,7 @@ window.addEventListener("gamepadconnected", (e) => {
 
 let players = [];
 let bullets = [];
-let comCount = 10;
+let comCount = 5;
 let place = 0;
 const margin = 10;
 const doorHeight = canvas.height / 3;

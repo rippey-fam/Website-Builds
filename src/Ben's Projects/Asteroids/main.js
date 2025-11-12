@@ -4,6 +4,60 @@ function clamp(variable, max, min) {
     return variable;
 }
 
+class Asteroid {
+    constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.angle = 0;
+        this.velocity = { x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2 };
+    }
+    move() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+    }
+    act(bullets) {
+        if (this.x < -this.size * 10) {
+            this.x = canvas.width + this.size * 10;
+        } else if (this.x > canvas.width + this.size * 10) {
+            this.x = -this.size * 10;
+        }
+        if (this.y < -this.size * 10) {
+            this.y = canvas.height + this.size * 10;
+        } else if (this.y > canvas.height + this.size * 10) {
+            this.y = -this.size * 10;
+        }
+        for (const bullet of bullets) {
+            if (Math.hypot(this.x - bullet.x, this.y - bullet.y) < this.size * 10) {
+                for (let i = 0; i < 2 * Math.PI; i += Math.PI / 8) {
+                    bullets.push(
+                        new Bullet({
+                            x: this.x + Math.cos(i) * this.size * 10 + 5,
+                            y: this.y + Math.sin(i) * this.size * 10 + 5,
+                            angle: i,
+                            speed: 20,
+                            h: 5,
+                            w: 2,
+                            round: true,
+                            color: "white",
+                        }),
+                    );
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    draw(ctx) {
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "white";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 10 * this.size, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.stroke();
+    }
+}
+
 class BG {
     constructor(width, height, count) {
         this.stars = [];
@@ -182,6 +236,7 @@ function game() {
 
     player.move();
     bullets.forEach((bullet) => bullet.move());
+    asteroids.forEach((asteroid) => asteroid.move());
 
     player.act();
     bullets.forEach((bullet) => {
@@ -190,8 +245,14 @@ function game() {
             bullets.filter((bullet2) => bullet2 !== bullet);
         }
     });
+    asteroids.forEach((asteroid) => {
+        if (asteroid.act(bullets)) {
+            asteroids = asteroids.filter((asteroid2) => asteroid2 !== asteroid);
+        }
+    });
 
     background.draw(ctx);
+    asteroids.forEach((asteroid) => asteroid.draw(ctx));
     player.draw(ctx);
     bullets.forEach((bullet) => bullet.draw(ctx));
 
@@ -199,6 +260,10 @@ function game() {
 }
 
 let bullets = [];
+let asteroids = Array(10);
+for (let i = 0; i < asteroids.length; i++) {
+    asteroids[i] = new Asteroid(Math.random() * canvas.width, Math.random() * canvas.height, 3);
+}
 let player = new Player(canvas.width / 2, canvas.height / 2);
 let background = new BG(canvas.width, canvas.height, 500);
 
