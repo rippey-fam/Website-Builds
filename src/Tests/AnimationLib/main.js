@@ -1,4 +1,4 @@
-import { Circle, Queue, Line, drawRect, drawLine, drawCircle } from "../../animationLib.js";
+import { Circle, Queue, Line, drawRect, drawLine, drawCircle, drawText } from "../../animationLib.js";
 
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
@@ -55,6 +55,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 color: "green",
                 lineWidth: 8,
                 equation: "easeOutBounce",
+                instances,
+            }),
+        )
+        .next(
+            drawText({
+                time: 1000,
+                text: "3",
+                textStyle: { size: 100, font: "Arial" },
+                color: { r: 255, g: 0, b: 0 },
+                p: { x: 500, y: 400 },
+                equation: "easeIn",
+                instances,
+            }),
+        )
+        .next(
+            drawText({
+                time: 1000,
+                text: "2",
+                textStyle: { size: 100, font: "Arial" },
+                color: { r: 0, g: 255, b: 0 },
+                p: { x: 500, y: 400 },
+                equation: "easeIn",
+                instances,
+            }),
+        )
+        .next(
+            drawText({
+                time: 1000,
+                text: "1",
+                textStyle: { size: 100, font: "Arial" },
+                color: { r: 0, g: 0, b: 255 },
+                p: { x: 500, y: 400 },
+                equation: "easeIn",
+                instances,
+            }),
+        )
+        .next(
+            drawText({
+                time: 1000,
+                text: "GO!",
+                textStyle: { size: 100, font: "Arial" },
+                color: { r: 0, g: 0, b: 0 },
+                p: { x: 500, y: 400 },
+                equation: "easeIn",
                 instances,
             }),
         )

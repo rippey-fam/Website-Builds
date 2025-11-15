@@ -113,6 +113,59 @@ export class Line {
     }
 }
 
+export class Text {
+    /**
+     * @param {object} param0
+     * @param {number} [param0.delay=0] - delay time
+     * @param {number} param0.time - length of animation
+     * @param {string} param0.text - text to draw
+     * @param {object} param0.textStyle - text font style
+     * @param {string} param0.textStyle.font - font style (e.g., "Arial")
+     * @param {number} param0.textStyle.size - font size in pixels
+     * @param {object} param0.color - text color
+     * @param {number} param0.color.r - red value (0-255)
+     * @param {number} param0.color.g - green value (0-255)
+     * @param {number} param0.color.b - blue value (0-255)
+     * @param {Point} param0.p - position to draw text
+     * @param {keyof typeof interpFunctions | function} [param0.equation = (x=>x)] - interpolate function or name of interpolate function
+     */
+    constructor({ delay = 0, time, text, textStyle, color, p, equation = (x) => x }) {
+        this.delay = delay;
+        this.time = time;
+        this.text = text;
+        this.textStyle = textStyle;
+        this.color = color;
+        this.p = p;
+        if (typeof equation === "function") {
+            this.equation = equation;
+        } else {
+            this.equation = interpFunctions[equation] ?? ((x) => x);
+        }
+        this.creationTime = getMillisecondsPlusDate();
+    }
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    draw(ctx) {
+        let t = getMillisecondsPlusDate() - this.creationTime;
+        t -= this.delay;
+        let r = interpolate(t, this.time, this.equation);
+        if (r !== 0) {
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${1 - r})`;
+            ctx.font = `${this.textStyle.size * (1 - r)}px ${this.textStyle.font}`;
+            ctx.fillText(this.text, this.p.x, this.p.y);
+            ctx.fill();
+        }
+    }
+
+    get totalTime() {
+        return this.delay + this.time;
+    }
+}
+
 export class Circle {
     /**
      *
@@ -206,71 +259,6 @@ export class Queue {
         return this;
     }
 }
-// /**
-//  * @param {Object} param0
-//  * @param {Point} param0.p1 - one corner of rectangle
-//  * @param {Point} param0.p2 - opposite corner of rectangle
-//  * @param {number} param0.overlap - time to overlap the two line animations
-//  * @param {keyof typeof interpFunctions | function} param0.equation - interpolate function or name of interpolate function
-//  * @param {"branched" | "ordered" | "parallel" | "windmill"} drawType - order to draw rectangle
-//  * @param {number} param0.time - length of animation
-//  * @param {string} [param0.color="black"] - line color
-//  * @param {number} [param0.lineWidth=7] - line width
-//  * @param {Array} param0.instances - array to push created line into
-//  */
-// export function drawRect({
-//     time,
-//     p1,
-//     p2,
-//     overlap,
-//     equation = undefined,
-//     drawType = "branched",
-//     color = "black",
-//     lineWidth = 7,
-//     instances,
-// }) {
-//     let lines = [];
-//     return (delay) => {
-//         let line1 = new Line({
-//             delay,
-//             time: time / 2,
-//             p1: { x: p1.x, y: p1.y },
-//             p2: { x: p2.x, y: p1.y },
-//             color,
-//             lineWidth,
-//             equation,
-//         });
-//         let line2 = new Line({
-//             delay,
-//             time: time / 2,
-//             p1: { x: p1.x, y: p1.y },
-//             p2: { x: p1.x, y: p2.y },
-//             color,
-//             lineWidth,
-//             equation,
-//         });
-//         let line3 = new Line({
-//             delay: line1.totalTime - overlap,
-//             time: time / 2,
-//             p1: { x: p2.x, y: p1.y },
-//             p2: { x: p2.x, y: p2.y },
-//             color,
-//             lineWidth,
-//             equation,
-//         });
-//         let line4 = new Line({
-//             delay: line1.totalTime - overlap,
-//             time: time / 2,
-//             p1: { x: p1.x, y: p2.y },
-//             p2: { x: p2.x, y: p2.y },
-//             color,
-//             lineWidth,
-//             equation,
-//         });
-//         instances.push(line1, line2, line3, line4);
-//         return line4.totalTime;
-//     };
-// }
 
 /**
  * @param {Object} param0
@@ -509,6 +497,14 @@ export function drawLine({ time, p1, p2, equation = undefined, color = "black", 
         let line = new Line({ delay, time, p1, p2, equation, color, lineWidth });
         instances.push(line);
         return line.totalTime;
+    };
+}
+
+export function drawText({ time, text, textStyle, color, p, equation = undefined, instances }) {
+    return (delay) => {
+        let textInstance = new Text({ delay, time, text, textStyle, color, p, equation });
+        instances.push(textInstance);
+        return textInstance.totalTime;
     };
 }
 

@@ -2,6 +2,7 @@ import { COM } from "./utils/COM.js";
 import { Player } from "./utils/Player.js";
 import Wall from "./utils/Wall.js";
 import mapController from "./utils/controllerMapping.js";
+import { Queue, drawText } from "../../animationLib.js";
 
 /**
  * @type {HTMLCanvasElement}
@@ -48,20 +49,37 @@ function inArea(x, y, area) {
 }
 
 window.addEventListener("gamepadconnected", (e) => {
-    let x = 20 + Math.random() * (canvas.width - 20);
-    let y = 20 + Math.random() * (canvas.height - 20);
-    while (
-        wall.check(x, y, 30) ||
-        inArea(x, y, { p1: { x: centerX, y: centerY }, p2: { x: centerX + squareSize, y: centerY + squareSize } })
-    ) {
-        x = 20 + Math.random() * (canvas.width - 20);
-        y = 20 + Math.random() * (canvas.height - 20);
-    }
-    players.push(new Player(x, y, players.length));
+    // let x = 20 + Math.random() * (canvas.width - 20);
+    // let y = 20 + Math.random() * (canvas.height - 20);
+    // while (
+    //     wall.check(x, y, 30) ||
+    //     inArea(x, y, { p1: { x: centerX, y: centerY }, p2: { x: centerX + squareSize, y: centerY + squareSize } })
+    // ) {
+    //     x = 20 + Math.random() * (canvas.width - 20);
+    //     y = 20 + Math.random() * (canvas.height - 20);
+    // }
+    let position = positions.pop();
+    players.push(new Player(position.x, position.y, players.length));
 });
 
 let players = [];
+let countdown = [];
 let bullets = [];
+const startOffset = 100;
+let positions = [
+    { x: startOffset, y: startOffset },
+    { x: startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
+    { x: startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
+    { x: startOffset, y: canvas.height - startOffset },
+    { x: canvas.width - startOffset, y: startOffset },
+    { x: canvas.width - startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
+    { x: canvas.width - startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
+    { x: canvas.width - startOffset, y: canvas.height - startOffset },
+].sort(() => Math.random() - 0.5);
+/**
+ * @type {"starting"|"playing"|"paused"|"cutscene"}
+ */
+let gameState = "starting";
 let comCount = 5;
 let place = 0;
 const margin = 10;
@@ -100,20 +118,70 @@ function game() {
     if (players.length !== 0 && interval !== null) {
         clearInterval(interval);
         interval = null;
-        for (let i = 0; i < comCount; i++) {
+        function goAndStart(delay) {
+            setTimeout(() => (gameState = "playing"), delay);
+            drawText({
+                time: 1000,
+                text: "GO!",
+                textStyle: { size: 100, font: "Arial" },
+                color: { r: 255, g: 0, b: 0 },
+                p: { x: canvas.width / 2, y: canvas.height / 2 },
+                equation: "easeIn",
+                instances: countdown,
+            })(delay);
+        }
+        queue
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "3",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "2",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "1",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(goAndStart);
+
+        let currentPlayerLen = players.length;
+        for (let i = 0; i < 8 - currentPlayerLen; i++) {
             let x = 20 + Math.random() * (canvas.width - 20);
             let y = 20 + Math.random() * (canvas.height - 20);
-            while (
-                wall.check(x, y, 30) ||
-                inArea(x, y, {
-                    p1: { x: centerX, y: centerY },
-                    p2: { x: centerX + squareSize, y: centerY + squareSize },
-                })
-            ) {
-                x = 20 + Math.random() * (canvas.width - 20);
-                y = 20 + Math.random() * (canvas.height - 20);
-            }
-            players.push(new COM(x, y));
+            // while (
+            //     wall.check(x, y, 30) ||
+            //     inArea(x, y, {
+            //         p1: { x: centerX, y: centerY },
+            //         p2: { x: centerX + squareSize, y: centerY + squareSize },
+            //     })
+            // ) {
+            //     x = 20 + Math.random() * (canvas.width - 20);
+            //     y = 20 + Math.random() * (canvas.height - 20);
+            // }
+            let position = positions.pop();
+            players.push(new COM(position.x, position.y));
         }
     }
     if (players.length !== 0) {
@@ -121,22 +189,24 @@ function game() {
         let skipped = 0;
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
-            if (!(player instanceof COM)) {
-                let gp = navigator.getGamepads()[i - skipped];
-                let mapping = mapController(gp);
-                if (mapping.select) window.location.reload();
-                player.input(
-                    { x: mapping.leftX, y: mapping.leftY },
-                    { x: mapping.rightX, y: mapping.rightY },
-                    mapping.a,
-                    mapping.x,
-                    mapping.b,
-                    gp.vibrationActuator,
-                    bullets,
-                );
-            } else {
-                player.input(players);
-                skipped++;
+            if (!(gameState === "paused" || gameState === "cutscene")) {
+                if (!(player instanceof COM)) {
+                    let gp = navigator.getGamepads()[i - skipped];
+                    let mapping = mapController(gp);
+                    if (mapping.select) window.location.reload();
+                    player.input(
+                        { x: mapping.leftX, y: mapping.leftY },
+                        gameState === "starting" ? { x: 0, y: 0 } : { x: mapping.rightX, y: mapping.rightY },
+                        gameState === "starting" ? 0 : mapping.a,
+                        gameState === "starting" ? 0 : mapping.x,
+                        gameState === "starting" ? 0 : mapping.b,
+                        gp.vibrationActuator,
+                        bullets,
+                    );
+                } else {
+                    player.input(players);
+                    skipped++;
+                }
             }
         }
 
@@ -166,7 +236,9 @@ function game() {
         wall.draw(ctx);
         players.forEach((player) => player.draw(ctx));
         bullets.forEach((bullet) => bullet.draw(ctx));
+        countdown.forEach((text) => text.draw(ctx));
     }
     requestAnimationFrame(game);
 }
+let queue = new Queue();
 game();
