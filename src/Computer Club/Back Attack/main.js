@@ -48,23 +48,32 @@ function inArea(x, y, area) {
     return false;
 }
 
-window.addEventListener("gamepadconnected", (e) => {
-    // let x = 20 + Math.random() * (canvas.width - 20);
-    // let y = 20 + Math.random() * (canvas.height - 20);
-    // while (
-    //     wall.check(x, y, 30) ||
-    //     inArea(x, y, { p1: { x: centerX, y: centerY }, p2: { x: centerX + squareSize, y: centerY + squareSize } })
-    // ) {
-    //     x = 20 + Math.random() * (canvas.width - 20);
-    //     y = 20 + Math.random() * (canvas.height - 20);
-    // }
-    let position = positions.pop();
-    players.push(new Player(position.x, position.y, players.length));
+function onGamepadConnected(e) {
+    if (gameState === "beginning") {
+        let position = positions.pop();
+        players.push(new Player(position.x, position.y, players.length));
+        indexes.push(e.gamepad.index);
+        if (players.length === 8) window.removeEventListener("gamepadconnected", onGamepadConnected);
+    } else window.removeEventListener("gamepadconnected", onGamepadConnected);
+    console.log(e.gamepad);
+}
+window.addEventListener("gamepadconnected", onGamepadConnected);
+
+window.addEventListener("gamepaddisconnected", (e) => {
+    indexes.indexOf(e.gamepad.index);
+    let newPlayers = [];
+    for (let i = 0; i < players.length; i++) {
+        if (indexes[i] !== e.gamepad.index) {
+            newPlayers.push(players[i]);
+        }
+    }
+    players = [...newPlayers];
 });
 
 let players = [];
 let countdown = [];
 let bullets = [];
+let indexes = [];
 const startOffset = 100;
 let positions = [
     { x: startOffset, y: startOffset },
@@ -77,9 +86,9 @@ let positions = [
     { x: canvas.width - startOffset, y: canvas.height - startOffset },
 ].sort(() => Math.random() - 0.5);
 /**
- * @type {"starting"|"playing"|"paused"|"cutscene"}
+ * @type {"starting"|"playing"|"paused"|"cutscene"|"beginning"}
  */
-let gameState = "starting";
+let gameState = "beginning";
 let comCount = 5;
 let place = 0;
 const margin = 10;
@@ -118,6 +127,7 @@ function game() {
     if (players.length !== 0 && interval !== null) {
         clearInterval(interval);
         interval = null;
+        gameState = "starting";
         function goAndStart(delay) {
             setTimeout(() => (gameState = "playing"), delay);
             drawText({
@@ -191,7 +201,7 @@ function game() {
             let player = players[i];
             if (!(gameState === "paused" || gameState === "cutscene")) {
                 if (!(player instanceof COM)) {
-                    let gp = navigator.getGamepads()[i - skipped];
+                    let gp = navigator.getGamepads()[indexes[i] - skipped];
                     let mapping = mapController(gp);
                     if (mapping.select) window.location.reload();
                     player.input(
@@ -204,7 +214,9 @@ function game() {
                         bullets,
                     );
                 } else {
-                    player.input(players);
+                    if (gameState !== "starting") {
+                        player.input(players, bullets);
+                    }
                     skipped++;
                 }
             }
@@ -242,3 +254,45 @@ function game() {
 }
 let queue = new Queue();
 game();
+
+// from https://ncase.me/sight-and-light/
+function getIntersection(ray, segment) {
+    // RAY in parametric: Point + Direction*T1
+    var r_px = ray.a.x;
+    var r_py = ray.a.y;
+    var r_dx = ray.b.x - ray.a.x;
+    var r_dy = ray.b.y - ray.a.y;
+
+    // SEGMENT in parametric: Point + Direction*T2
+    var s_px = segment.a.x;
+    var s_py = segment.a.y;
+    var s_dx = segment.b.x - segment.a.x;
+    var s_dy = segment.b.y - segment.a.y;
+
+    // Are they parallel? If so, no intersect
+    var r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy);
+    var s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
+    if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag) {
+        // Directions are the same.
+        return null;
+    }
+
+    // SOLVE FOR T1 & T2
+    // r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
+    // ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
+    // ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
+    // ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
+    var T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
+    var T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+
+    // Must be within parametic whatevers for RAY/SEGMENT
+    if (T1 < 0) return null;
+    if (T2 < 0 || T2 > 1) return null;
+
+    // Return the POINT OF INTERSECTION
+    return {
+        x: r_px + r_dx * T1,
+        y: r_py + r_dy * T1,
+        param: T1,
+    };
+}

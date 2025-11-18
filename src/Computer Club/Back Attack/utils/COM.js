@@ -5,7 +5,7 @@ export class COM extends Player {
         super(x, y, 0);
         this.color = "hsl(0, 0%, 40%)";
     }
-    input(players) {
+    input(players, bullets) {
         let closest = Infinity;
         let closestCoor = null;
         players.forEach((player) => {
@@ -20,6 +20,16 @@ export class COM extends Player {
                 }
             }
         });
-        if (closestCoor) this.angle = Math.atan2(closestCoor.y - this.y, closestCoor.x - this.x);
+        let angle = this.angle;
+        if (closestCoor) angle = Math.atan2(closestCoor.y - this.y, closestCoor.x - this.x);
+        super.input(
+            { x: Math.cos(angle), y: Math.sin(angle) },
+            { x: 0, y: 0 },
+            Math.random() > 0.95,
+            false,
+            false,
+            null,
+            bullets,
+        );
     }
 }

@@ -47,6 +47,6 @@ export default function mapController(gp) {
         down: gp.buttons[13].pressed,
         left: gp.buttons[14].pressed,
         right: gp.buttons[15].pressed,
-        xBoxButton: gp.buttons[16].pressed,
+        // xBoxButton: gp.buttons[16].pressed,
     };
 }

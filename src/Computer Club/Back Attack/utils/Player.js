@@ -74,7 +74,7 @@ export class Player {
             );
             this.velocity.x -= Math.cos(this.angle) * this.pushBackForce;
             this.velocity.y -= Math.sin(this.angle) * this.pushBackForce;
-            vibration.playEffect("dual-rumble", {
+            vibration?.playEffect("dual-rumble", {
                 startDelay: 0,
                 duration: 100,
                 weakMagnitude: 1.0,
@@ -100,7 +100,7 @@ export class Player {
             );
             this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 3;
             this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 3;
-            vibration.playEffect("dual-rumble", {
+            vibration?.playEffect("dual-rumble", {
                 startDelay: 0,
                 duration: 200,
                 weakMagnitude: 1.0,
@@ -126,7 +126,7 @@ export class Player {
             );
             this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 0.5;
             this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 0.5;
-            vibration.playEffect("dual-rumble", {
+            vibration?.playEffect("dual-rumble", {
                 startDelay: 0,
                 duration: 50,
                 weakMagnitude: 1.0,
@@ -196,9 +196,9 @@ export class Player {
         let dy = this.y + this.radius * sin + (this.w / 2) * sinMinus;
 
         ctx.strokeStyle = this.color;
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 10;
 
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "white";
         ctx.lineCap = "round";
         ctx.beginPath();
         ctx.moveTo(ax, ay);
