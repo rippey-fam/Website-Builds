@@ -156,8 +156,10 @@ export class Text {
             ctx.textBaseline = "middle";
             ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${1 - r})`;
             ctx.font = `${this.textStyle.size * (1 - r)}px ${this.textStyle.font}`;
+            ctx.strokeStyle = "white";
             ctx.fillText(this.text, this.p.x, this.p.y);
             ctx.fill();
+            ctx.stroke();
         }
     }
 

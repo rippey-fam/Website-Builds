@@ -3,6 +3,7 @@ import { Player } from "./utils/Player.js";
 import Wall from "./utils/Wall.js";
 import mapController from "./utils/controllerMapping.js";
 import { Queue, drawText } from "../../animationLib.js";
+import { Selector } from "./utils/Selector.js";
 
 /**
  * @type {HTMLCanvasElement}
@@ -24,11 +25,13 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-ctx.textAlign = "left";
-ctx.font = "30px Arial";
 ctx.fillText("Connect Your Controller", canvas.width / 2 - 200, canvas.height / 2);
 let count = 0;
+ctx.textAlign = "left";
+ctx.font = "30px Arial";
 let interval = setInterval(() => {
+    ctx.textAlign = "left";
+    ctx.font = "30px Arial";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillText(
         "Connect Your Controller" + (count % 4 === 1 ? "." : count % 4 === 2 ? ".." : count % 4 === 3 ? "..." : ""),
@@ -38,15 +41,6 @@ let interval = setInterval(() => {
     ctx.fill();
     count++;
 }, 200);
-
-function inArea(x, y, area) {
-    if (area.p1.x <= x && x <= area.p2.x) {
-        if (area.p1.y <= y && y <= area.p2.y) {
-            return true;
-        }
-    }
-    return false;
-}
 
 function onGamepadConnected(e) {
     if (gameState === "beginning") {
@@ -74,22 +68,30 @@ let players = [];
 let countdown = [];
 let bullets = [];
 let indexes = [];
+let menuSelector = new Selector(
+    canvas.width / 2,
+    75,
+    [
+        ["Golden Gun", "No R", "Fatso"],
+        ["Level 1", "Level 2", "Level 3", "Level 4"],
+    ],
+    ctx,
+);
 const startOffset = 100;
 let positions = [
-    { x: startOffset, y: startOffset },
+    { x: startOffset + 0.1, y: startOffset },
     { x: startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
     { x: startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
     { x: startOffset, y: canvas.height - startOffset },
     { x: canvas.width - startOffset, y: startOffset },
     { x: canvas.width - startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
     { x: canvas.width - startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
-    { x: canvas.width - startOffset, y: canvas.height - startOffset },
+    { x: canvas.width - startOffset - 0.1, y: canvas.height - startOffset },
 ].sort(() => Math.random() - 0.5);
 /**
  * @type {"starting"|"playing"|"paused"|"cutscene"|"beginning"}
  */
 let gameState = "beginning";
-let comCount = 5;
 let place = 0;
 const margin = 10;
 const doorHeight = canvas.height / 3;
@@ -199,22 +201,35 @@ function game() {
         let skipped = 0;
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
-            if (!(gameState === "paused" || gameState === "cutscene")) {
+            if (gameState !== "cutscene") {
                 if (!(player instanceof COM)) {
                     let gp = navigator.getGamepads()[indexes[i] - skipped];
                     let mapping = mapController(gp);
-                    if (mapping.select) window.location.reload();
-                    player.input(
-                        { x: mapping.leftX, y: mapping.leftY },
-                        gameState === "starting" ? { x: 0, y: 0 } : { x: mapping.rightX, y: mapping.rightY },
-                        gameState === "starting" ? 0 : mapping.a,
-                        gameState === "starting" ? 0 : mapping.x,
-                        gameState === "starting" ? 0 : mapping.b,
-                        gp.vibrationActuator,
-                        bullets,
-                    );
+                    if (gameState !== "paused") {
+                        player.input(
+                            { x: mapping.leftX, y: mapping.leftY },
+                            gameState === "starting" ? { x: 0, y: 0 } : { x: mapping.rightX, y: mapping.rightY },
+                            gameState === "starting" ? 0 : mapping.a,
+                            gameState === "starting" ? 0 : mapping.x,
+                            gameState === "starting" ? 0 : mapping.b,
+                            gp.vibrationActuator,
+                            bullets,
+                        );
+                        if (mapping.start && gameState !== "starting") gameState = "paused";
+                    } else if (gameState === "paused") {
+                        let [letter, number] = menuSelector.input(
+                            { x: mapping.right - mapping.left, y: mapping.up - mapping.down },
+                            mapping.a,
+                        ) || [null, null];
+                        if (letter !== null) {
+                            console.log(`Selection was made: ${letter}, ${number}`);
+                            window.location.reload();
+                            gameState = "playing";
+                        }
+                        if (mapping.select) gameState = "playing";
+                    }
                 } else {
-                    if (gameState !== "starting") {
+                    if (!(gameState === "starting" || gameState === "paused")) {
                         player.input(players, bullets);
                     }
                     skipped++;
@@ -222,8 +237,10 @@ function game() {
             }
         }
 
-        players.forEach((player) => player.move());
-        bullets.forEach((bullet) => bullet.move());
+        if (gameState !== "paused") {
+            players.forEach((player) => player.move());
+            bullets.forEach((bullet) => bullet.move());
+        }
 
         players.forEach((player) => {
             bullets = player.act(bullets, wall);
@@ -249,50 +266,9 @@ function game() {
         players.forEach((player) => player.draw(ctx));
         bullets.forEach((bullet) => bullet.draw(ctx));
         countdown.forEach((text) => text.draw(ctx));
+        if (gameState === "paused") menuSelector.draw(ctx);
     }
     requestAnimationFrame(game);
 }
 let queue = new Queue();
 game();
-
-// from https://ncase.me/sight-and-light/
-function getIntersection(ray, segment) {
-    // RAY in parametric: Point + Direction*T1
-    var r_px = ray.a.x;
-    var r_py = ray.a.y;
-    var r_dx = ray.b.x - ray.a.x;
-    var r_dy = ray.b.y - ray.a.y;
-
-    // SEGMENT in parametric: Point + Direction*T2
-    var s_px = segment.a.x;
-    var s_py = segment.a.y;
-    var s_dx = segment.b.x - segment.a.x;
-    var s_dy = segment.b.y - segment.a.y;
-
-    // Are they parallel? If so, no intersect
-    var r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy);
-    var s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
-    if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag) {
-        // Directions are the same.
-        return null;
-    }
-
-    // SOLVE FOR T1 & T2
-    // r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
-    // ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
-    // ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
-    // ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
-    var T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
-    var T1 = (s_px + s_dx * T2 - r_px) / r_dx;
-
-    // Must be within parametic whatevers for RAY/SEGMENT
-    if (T1 < 0) return null;
-    if (T2 < 0 || T2 > 1) return null;
-
-    // Return the POINT OF INTERSECTION
-    return {
-        x: r_px + r_dx * T1,
-        y: r_py + r_dy * T1,
-        param: T1,
-    };
-}
