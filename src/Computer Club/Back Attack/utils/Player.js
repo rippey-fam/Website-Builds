@@ -124,6 +124,7 @@ export class Player {
                     height: canvas.height,
                 }),
             );
+
             this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 0.5;
             this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 0.5;
             vibration?.playEffect("dual-rumble", {

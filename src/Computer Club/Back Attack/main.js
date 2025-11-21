@@ -47,7 +47,7 @@ function onGamepadConnected(e) {
         let position = positions.pop();
         players.push(new Player(position.x, position.y, players.length));
         indexes.push(e.gamepad.index);
-        if (players.length === 8) window.removeEventListener("gamepadconnected", onGamepadConnected);
+        if (players.length === playerCount) window.removeEventListener("gamepadconnected", onGamepadConnected);
     } else window.removeEventListener("gamepadconnected", onGamepadConnected);
     console.log(e.gamepad);
 }
@@ -94,6 +94,9 @@ let positions = [
 let gameState = "beginning";
 let place = 0;
 const margin = 10;
+let playerCount = 2;
+playerCount = playerCount > positions.length ? positions.length : playerCount;
+
 const doorHeight = canvas.height / 3;
 let wall = new Wall();
 // shape like this:
@@ -143,55 +146,43 @@ function game() {
             })(delay);
         }
         queue
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "3",
-                    textStyle: { size: 100, font: "Arial" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "2",
-                    textStyle: { size: 100, font: "Arial" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "1",
-                    textStyle: { size: 100, font: "Arial" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "3",
+            //         textStyle: { size: 100, font: "Arial" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "2",
+            //         textStyle: { size: 100, font: "Arial" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "1",
+            //         textStyle: { size: 100, font: "Arial" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
             .next(goAndStart);
 
         let currentPlayerLen = players.length;
-        for (let i = 0; i < 8 - currentPlayerLen; i++) {
-            let x = 20 + Math.random() * (canvas.width - 20);
-            let y = 20 + Math.random() * (canvas.height - 20);
-            // while (
-            //     wall.check(x, y, 30) ||
-            //     inArea(x, y, {
-            //         p1: { x: centerX, y: centerY },
-            //         p2: { x: centerX + squareSize, y: centerY + squareSize },
-            //     })
-            // ) {
-            //     x = 20 + Math.random() * (canvas.width - 20);
-            //     y = 20 + Math.random() * (canvas.height - 20);
-            // }
+        for (let i = 0; i < playerCount - currentPlayerLen; i++) {
             let position = positions.pop();
             players.push(new COM(position.x, position.y));
         }
@@ -230,7 +221,7 @@ function game() {
                     }
                 } else {
                     if (!(gameState === "starting" || gameState === "paused")) {
-                        player.input(players, bullets);
+                        player.input({ players, wall, bullets, ctx });
                     }
                     skipped++;
                 }
