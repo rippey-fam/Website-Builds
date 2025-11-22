@@ -64,6 +64,14 @@ window.addEventListener("gamepaddisconnected", (e) => {
     players = [...newPlayers];
 });
 
+let startGame = (e) => {
+    if(e.key === " "){
+        gameState = "playing"
+        window.removeEventListener("keypress", startGame)
+    }
+}
+window.addEventListener("keypress", startGame)
+
 let players = [];
 let countdown = [];
 let bullets = [];
