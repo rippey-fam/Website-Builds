@@ -65,10 +65,8 @@ window.addEventListener("gamepaddisconnected", (e) => {
 });
 
 let startGame = (e) => {
-    if(e.key === " "){
-        gameState = "playing"
-        window.removeEventListener("keypress", startGame)
-    }
+    gameState = "playing"
+    window.removeEventListener("keypress", startGame)
 }
 window.addEventListener("keypress", startGame)
 
