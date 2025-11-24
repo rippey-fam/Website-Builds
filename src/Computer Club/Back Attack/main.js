@@ -65,9 +65,11 @@ window.addEventListener("gamepaddisconnected", (e) => {
 });
 
 let startGame = (e) => {
-    let position = positions.pop();
-    players.push(new COM(position.x, position.y)
-    window.removeEventListener("keypress", startGame)
+    if(e.key = " "){
+        let position = positions.pop();
+        players.push(new COM(position.x, position.y));
+        window.removeEventListener("keypress", startGame)
+    }
 }
 window.addEventListener("keypress", startGame)
 
