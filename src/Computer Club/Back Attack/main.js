@@ -64,14 +64,21 @@ window.addEventListener("gamepaddisconnected", (e) => {
     players = [...newPlayers];
 });
 
-let startGame = (e) => {
-    if(e.key = " "){
-        let position = positions.pop();
-        players.push(new COM(position.x, position.y));
-        window.removeEventListener("keypress", startGame)
-    }
-}
-window.addEventListener("keypress", startGame)
+document.addEventListener(
+    "keypress",
+    (e) => {
+        if (e.key === " ") {
+            let position = positions.pop();
+            players.push(new COM(position.x, position.y));
+        }
+    },
+    { once: true },
+);
+
+document.addEventListener("click", (e) => {
+    let canvasBounds = canvas.getBoundingClientRect();
+    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y));
+});
 
 let players = [];
 let countdown = [];
@@ -103,7 +110,7 @@ let positions = [
 let gameState = "beginning";
 let place = 0;
 const margin = 10;
-let playerCount = 2;
+let playerCount = 8;
 playerCount = playerCount > positions.length ? positions.length : playerCount;
 
 const doorHeight = canvas.height / 3;
@@ -155,39 +162,39 @@ function game() {
             })(delay);
         }
         queue
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "3",
-            //         textStyle: { size: 100, font: "Arial" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "2",
-            //         textStyle: { size: 100, font: "Arial" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "1",
-            //         textStyle: { size: 100, font: "Arial" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "3",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "2",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "1",
+                    textStyle: { size: 100, font: "Arial" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
             .next(goAndStart);
 
         let currentPlayerLen = players.length;

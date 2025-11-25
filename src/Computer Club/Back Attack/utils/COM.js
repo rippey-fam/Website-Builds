@@ -8,16 +8,27 @@ export class COM extends Player {
          * @type {"wandering"|"hunting"|"escaping"}
          */
         this.state = "wandering";
+        this.debug = false;
         this.wanderState = {
-            direction: 0,
+            point: null,
+            timeout: null,
+            prevPoint: null,
+            shouldChange: false,
+            gravitationForce: 0.5,
         };
+        this.shoot = {
+            a: 0,
+            x: 0,
+            b: 0,
+        };
+        this.shootFrameCooldown = 15;
     }
 
     input(context) {
         switch (this.state) {
             case "wandering":
                 this.inputWander(context);
-                // this.inputDumb(context);
+                this.inputDumb(context);
                 break;
             case "hunting":
                 this.inputHunting(context);
@@ -39,49 +50,132 @@ export class COM extends Player {
         let closestCoor = null;
 
         players.forEach((player) => {
-            if (player !== this) {
-                let dist = Math.hypot(this.x - player.x, this.y - player.y);
+            let intersection = getClosestIntersection({ a: this, b: player }, wall.walls);
+            let dist = distance(this, player);
+            if (intersection !== null) {
+                if (intersection.dist > dist) {
+                    if (dist < closest) {
+                        closest = dist;
+                        closestCoor = { x: player.x, y: player.y };
+                    }
+                }
+            } else {
                 if (dist < closest) {
                     closest = dist;
                     closestCoor = { x: player.x, y: player.y };
                 }
-                if (dist < 50) {
-                    //shoot
-                }
             }
         });
         let angle = this.angle;
-        if (closestCoor) angle = Math.atan2(closestCoor.y - this.y, closestCoor.x - this.x);
+        if (closestCoor) {
+            angle = Math.atan2(closestCoor.y - this.y, closestCoor.x - this.x);
+            if (closest < 300) {
+                if (this.shoot.a === 0) {
+                    this.shoot.a = this.shootFrameCooldown;
+                }
+            }
+        }
         super.input(
             { x: Math.cos(angle), y: Math.sin(angle) },
             { x: 0, y: 0 },
-            Math.random() > 0.95,
+            this.shoot.a === this.shootFrameCooldown,
             false,
             false,
             null,
             bullets,
         );
+        if (this.shoot.a > 0) this.shoot.a--;
     }
 
     chooseDirection() {}
     inputWander({ players, wall, bullets, ctx }) {
         let intersections = this.getRaycast(wall.walls);
-        this.repelFromPoints(intersections);
-        for (const point of intersections) {
+
+        if (this.wanderState.shouldChange) {
+            this.wanderState.point = null;
+            this.wanderState.shouldChange = false;
+        }
+        if (this.wanderState.point !== null) {
+            if (distance(this, this.wanderState.point) < 200) {
+                this.wanderState.prevPoint = { x: this.wanderState.point.x, y: this.wanderState.point.y };
+                this.wanderState.point = null;
+                console.log("got there!");
+            }
+        }
+
+        if (this.wanderState.point === null) {
+            if (this.wanderState.timeout !== null) clearTimeout(this.wanderState.timeout);
+            let intersectionsCopy = [...intersections].sort((a, b) => b.dist - a.dist);
+            let findNewPoint = () => {
+                if (this.wanderState.prevPoint !== null) {
+                    let prevPointDir = Math.atan2(
+                        this.wanderState.prevPoint.y - this.y,
+                        this.wanderState.prevPoint.x - this.x,
+                    );
+                    for (const point of intersectionsCopy) {
+                        let direction = Math.atan2(point.y - this.y, point.x - this.x);
+                        console.log(`previous direction: ${prevPointDir}, trying direction: ${direction}`);
+                        if (Math.abs(direction - prevPointDir) > Math.PI / 2) {
+                            console.log("\nit worked!\n");
+                            return point;
+                        }
+                    }
+                } else {
+                    return intersectionsCopy[0];
+                }
+            };
+            let point = findNewPoint();
+            this.wanderState.point = point;
+            this.wanderState.timeout = setTimeout(() => {
+                this.wanderState.shouldChange = true;
+            }, 7000);
+        }
+
+        let gravitate = this.repelFromPoints(intersections);
+        if (this.debug) {
+            for (const point of intersections) {
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.fillStyle = "red";
+                ctx.lineWidth = "3";
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(point.x, point.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        let strength = this.wanderState.gravitationForce;
+        let dist = distance(this, this.wanderState.point);
+
+        let dx = this.x - this.wanderState.point.x;
+        let dy = this.y - this.wanderState.point.y;
+
+        let ex = (dx / dist) * strength;
+        let ey = (dy / dist) * strength;
+
+        gravitate.x -= ex;
+        gravitate.y -= ey;
+
+        if (this.debug) {
             ctx.beginPath();
-            ctx.strokeStyle = "red";
-            ctx.fillStyle = "red";
+            ctx.strokeStyle = "blue";
+            ctx.fillStyle = "blue";
             ctx.lineWidth = "3";
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(point.x, point.y);
+            ctx.lineTo(this.wanderState.point.x, this.wanderState.point.y);
             ctx.stroke();
             ctx.beginPath();
-            ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI);
+            ctx.arc(this.wanderState.point.x, this.wanderState.point.y, 10, 0, 2 * Math.PI);
             ctx.fill();
         }
+
         super.input(
             { x: Math.cos(this.angle), y: Math.sin(this.angle) },
-            this.repelFromPoints(intersections),
+            gravitate,
+            false,
             false,
             false,
             null,
@@ -105,7 +199,7 @@ export class COM extends Player {
     repelFromPoints(intersections) {
         let gravitate = { x: 0, y: 0 };
         for (const point of intersections) {
-            let dist = distance(this, point);
+            let dist = point.dist;
             let factor = 3;
             let strength = factor / dist;
 
@@ -118,7 +212,7 @@ export class COM extends Player {
             gravitate.x += ex;
             gravitate.y += ey;
         }
-        console.log(gravitate);
+        // console.log(gravitate);
         return gravitate;
     }
 }
@@ -159,10 +253,20 @@ function getIntersection(ray, segment) {
     if (T2 < 0 || T2 > 1) return null;
 
     // Return the POINT OF INTERSECTION
-    return {
+
+    let p = {
         x: r_px + r_dx * T1,
         y: r_py + r_dy * T1,
-        param: T1,
+    };
+    let dx = p.x - ray.a.x;
+    let dy = p.y - ray.a.y;
+    let dist = Math.hypot(dx, dy);
+    return {
+        x: p.x,
+        y: p.y,
+        dx,
+        dy,
+        dist,
     };
 }
 
@@ -177,7 +281,7 @@ function getClosestIntersection(ray, segments) {
         let intersection = getIntersection(ray, segment);
         if (intersection) {
             //if(Math.hypot(ray.a.x - intersection.x, ray.a.y - intersection.y) < closest){
-            let dist = distance(ray.a, intersection);
+            let dist = intersection.dist;
             if (dist < closest) {
                 closest = dist;
                 closestPoint = intersection;

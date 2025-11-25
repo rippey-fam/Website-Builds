@@ -1,10 +1,23 @@
 import { Bullet } from "./Bullet.js";
+import { COM } from "./COM.js";
+
+let point = (x, y) => {
+    return { x, y };
+};
 
 function deadzone(joy, min) {
     if (Math.hypot(joy.x, joy.y) < min) {
         return { x: 0, y: 0 };
     }
     return joy;
+}
+
+function clampMagnitude({ x, y }, max, min) {
+    let dist = Math.hypot(x, y);
+    if (Math.abs(dist) < max) return deadzone({ x, y }, min);
+    let y1 = (max * y) / dist;
+    let x1 = Math.sqrt(max ** 2 - y1 ** 2) * Math.sign(x);
+    return point(x1, y1);
 }
 
 export class Player {
@@ -46,7 +59,8 @@ export class Player {
         if (leftJoy.x !== 0 && leftJoy.y !== 0) {
             this.angle = Math.atan2(leftJoy.y, leftJoy.x);
         }
-        rightJoy = deadzone(rightJoy, 0.2);
+
+        rightJoy = clampMagnitude(rightJoy, 1, 0.2);
 
         let scalarX = 1;
         let scalarY = 1;
