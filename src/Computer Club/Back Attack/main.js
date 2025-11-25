@@ -47,7 +47,7 @@ function onGamepadConnected(e) {
         let position = positions.pop();
         players.push(new Player(position.x, position.y, players.length));
         indexes.push(e.gamepad.index);
-        if (players.length === 8) window.removeEventListener("gamepadconnected", onGamepadConnected);
+        if (players.length === playerCount) window.removeEventListener("gamepadconnected", onGamepadConnected);
     } else window.removeEventListener("gamepadconnected", onGamepadConnected);
     console.log(e.gamepad);
 }
@@ -62,6 +62,22 @@ window.addEventListener("gamepaddisconnected", (e) => {
         }
     }
     players = [...newPlayers];
+});
+
+document.addEventListener(
+    "keypress",
+    (e) => {
+        if (e.key === " ") {
+            let position = positions.pop();
+            players.push(new COM(position.x, position.y));
+        }
+    },
+    { once: true },
+);
+
+document.addEventListener("click", (e) => {
+    let canvasBounds = canvas.getBoundingClientRect();
+    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y));
 });
 
 let players = [];
@@ -94,6 +110,9 @@ let positions = [
 let gameState = "beginning";
 let place = 0;
 const margin = 10;
+let playerCount = 8;
+playerCount = playerCount > positions.length ? positions.length : playerCount;
+
 const doorHeight = canvas.height / 3;
 let wall = new Wall();
 // shape like this:
@@ -179,19 +198,7 @@ function game() {
             .next(goAndStart);
 
         let currentPlayerLen = players.length;
-        for (let i = 0; i < 8 - currentPlayerLen; i++) {
-            let x = 20 + Math.random() * (canvas.width - 20);
-            let y = 20 + Math.random() * (canvas.height - 20);
-            // while (
-            //     wall.check(x, y, 30) ||
-            //     inArea(x, y, {
-            //         p1: { x: centerX, y: centerY },
-            //         p2: { x: centerX + squareSize, y: centerY + squareSize },
-            //     })
-            // ) {
-            //     x = 20 + Math.random() * (canvas.width - 20);
-            //     y = 20 + Math.random() * (canvas.height - 20);
-            // }
+        for (let i = 0; i < playerCount - currentPlayerLen; i++) {
             let position = positions.pop();
             players.push(new COM(position.x, position.y));
         }
@@ -230,7 +237,7 @@ function game() {
                     }
                 } else {
                     if (!(gameState === "starting" || gameState === "paused")) {
-                        player.input(players, bullets);
+                        player.input({ players, wall, bullets, ctx });
                     }
                     skipped++;
                 }
