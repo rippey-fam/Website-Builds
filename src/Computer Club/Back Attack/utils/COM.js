@@ -43,7 +43,7 @@ export class COM extends Player {
 
     inputDumb({ players, wall, bullets }) {
         players = [...players];
-        players = players.filter((p) => p !== this);
+        players = players.filter((p) => p !== this).filter((p) => !p.isDead);
         players.sort((a, b) => Math.hypot(this.x - a.x, this.y - a.y) - Math.hypot(this.x - b.x, this.y - b.y));
 
         let closest = Infinity;

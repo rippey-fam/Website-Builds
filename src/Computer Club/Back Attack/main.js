@@ -245,7 +245,12 @@ function game() {
         }
 
         if (gameState !== "paused") {
-            players.forEach((player) => player.move());
+            players.forEach((player) => {
+                console.log(player.isDead);
+                if (!player.isDead) {
+                    player.move();
+                }
+            });
             bullets.forEach((bullet) => bullet.move());
         }
 
