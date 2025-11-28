@@ -54,14 +54,9 @@ function onGamepadConnected(e) {
 window.addEventListener("gamepadconnected", onGamepadConnected);
 
 window.addEventListener("gamepaddisconnected", (e) => {
-    indexes.indexOf(e.gamepad.index);
-    let newPlayers = [];
-    for (let i = 0; i < players.length; i++) {
-        if (indexes[i] !== e.gamepad.index) {
-            newPlayers.push(players[i]);
-        }
-    }
-    players = [...newPlayers];
+    let disconnectedIndex = indexes.indexOf(e.gamepad.index);
+    indexes.splice(disconnectedIndex, 1);
+    players.splice(disconnectedIndex, 1);
 });
 
 document.addEventListener(
@@ -80,16 +75,21 @@ document.addEventListener("click", (e) => {
     players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y));
 });
 
+const params = new URLSearchParams(window.location.search);
+const level = params.get("level") || 1;
+const powerup = params.get("powerup") || "Plain Level";
+console.log(`Level selected: ${level}, Powerup selected: ${powerup}`);
+
 let players = [];
 let countdown = [];
 let bullets = [];
 let indexes = [];
 let menuSelector = new Selector(
     canvas.width / 2,
-    75,
+    120,
     [
-        ["Golden Gun", "No R", "Fatso"],
-        ["Level 1", "Level 2", "Level 3", "Level 4"],
+        ["Golden Gun", "No R Stick", "Pushforward", "Sneaky-Aim", "Man-vs-Man", "Plain Level"],
+        ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"],
     ],
     ctx,
 );
@@ -109,10 +109,11 @@ let positions = [
  */
 let gameState = "beginning";
 let place = 0;
-const margin = 10;
+let pausedPlayerID = null;
 let playerCount = 8;
 playerCount = playerCount > positions.length ? positions.length : playerCount;
 
+const margin = 10;
 const doorHeight = canvas.height / 3;
 let wall = new Wall();
 // shape like this:
@@ -210,7 +211,8 @@ function game() {
             let player = players[i];
             if (gameState !== "cutscene") {
                 if (!(player instanceof COM)) {
-                    let gp = navigator.getGamepads()[indexes[i] - skipped];
+                    let gp = navigator.getGamepads()[indexes[i - skipped]];
+                    if (!gp) continue;
                     let mapping = mapController(gp);
                     if (gameState !== "paused") {
                         player.input(
@@ -222,18 +224,24 @@ function game() {
                             gp.vibrationActuator,
                             bullets,
                         );
-                        if (mapping.start && gameState !== "starting") gameState = "paused";
-                    } else if (gameState === "paused") {
-                        let [letter, number] = menuSelector.input(
-                            { x: mapping.right - mapping.left, y: mapping.up - mapping.down },
-                            mapping.a,
-                        ) || [null, null];
-                        if (letter !== null) {
-                            console.log(`Selection was made: ${letter}, ${number}`);
-                            window.location.reload();
-                            gameState = "playing";
+                        if (mapping.start && gameState !== "starting") {
+                            gameState = "paused";
+                            pausedPlayerID = indexes[i - skipped];
                         }
-                        if (mapping.select) gameState = "playing";
+                    } else if (gameState === "paused") {
+                        if (indexes[i - skipped] === pausedPlayerID) {
+                            let [powerup, level] = menuSelector.input(
+                                { x: mapping.right - mapping.left, y: mapping.up - mapping.down },
+                                mapping.a,
+                            ) || [null, null];
+                            if (powerup !== null) {
+                                console.log(`Selection was made: ${powerup}, ${level}`);
+                                window.location.href = `../Back%20Attack/index.html?powerup=${encodeURIComponent(powerup)}&level=${encodeURIComponent(
+                                    level.at(-1),
+                                )}`;
+                            }
+                            if (mapping.select) gameState = "playing";
+                        }
                     }
                 } else {
                     if (!(gameState === "starting" || gameState === "paused")) {
@@ -246,8 +254,7 @@ function game() {
 
         if (gameState !== "paused") {
             players.forEach((player) => {
-                console.log(player.isDead);
-                if (!player.isDead) {
+                if (!player.isDead || player.place === 1) {
                     player.move();
                 }
             });

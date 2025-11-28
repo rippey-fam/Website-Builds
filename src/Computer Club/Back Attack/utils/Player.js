@@ -60,7 +60,7 @@ export class Player {
             this.angle = Math.atan2(leftJoy.y, leftJoy.x);
         }
 
-        rightJoy = clampMagnitude(rightJoy, 1, 0.2);
+        rightJoy = clampMagnitude(rightJoy, 1, 0.1);
 
         let scalarX = 1;
         let scalarY = 1;

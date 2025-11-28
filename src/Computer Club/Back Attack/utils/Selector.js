@@ -13,13 +13,13 @@ export class Selector {
         let longest2 = 0;
         ctx.font = `${this.size}px Arial`;
         for (const choice of choices[0]) {
-            let length = ctx.measureText(choice + " ,").width;
+            let length = ctx.measureText(choice).width;
             if (length > longest1) {
                 longest1 = length;
             }
         }
         for (const choice of choices[1]) {
-            let length = ctx.measureText(choice).width;
+            let length = ctx.measureText(choice + " ,").width;
             if (length > longest2) {
                 longest2 = length;
             }
@@ -49,7 +49,9 @@ export class Selector {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.strokeStyle = "white";
-        let currentSelection = this.choices[0][this.i].toUpperCase() + ", " + this.choices[1][this.j];
+        ctx.lineWidth = "10px";
+        let currentSelection = this.choices[1][this.j] + ", " + this.choices[0][this.i];
+        ctx.strokeText(currentSelection, this.x, this.y);
         ctx.fillText(currentSelection, this.x, this.y);
         ctx.fill();
         ctx.stroke();
@@ -58,16 +60,31 @@ export class Selector {
         ctx.fillStyle = "rgba(0, 0, 0, 0.69)";
 
         ctx.textAlign = "right";
-        ctx.fillText(this.choices[0][(this.i + 1) % this.choices[0].length], this.x - this.longest / 2 - 50, this.y);
+        let leftMessage = this.choices[0][(this.i + 1) % this.choices[0].length];
+        ctx.strokeText(leftMessage, this.x - this.longest / 2 - 50, this.y);
+        ctx.fillText(leftMessage, this.x - this.longest / 2 - 50, this.y);
         ctx.fill();
         ctx.stroke();
 
         ctx.textAlign = "left";
-        ctx.fillText(
-            this.choices[0][this.i - 1 < 0 ? this.choices[0].length - 1 : this.i - 1],
-            this.x + this.longest / 2 + 50,
-            this.y,
-        );
+        const rightMessage = this.choices[0][this.i - 1 < 0 ? this.choices[0].length - 1 : this.i - 1];
+        ctx.strokeText(rightMessage, this.x + this.longest / 2 + 50, this.y);
+        ctx.fillText(rightMessage, this.x + this.longest / 2 + 50, this.y);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        const bottomMessage = this.choices[1][(this.j + 1) % this.choices[1].length];
+        ctx.strokeText(bottomMessage, this.x, this.y + this.size);
+        ctx.fillText(bottomMessage, this.x, this.y + this.size);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.textBaseline = "bottom";
+        const topMessage = this.choices[1][this.j - 1 < 0 ? this.choices[1].length - 1 : this.j - 1];
+        ctx.strokeText(topMessage, this.x, this.y - this.size);
+        ctx.fillText(topMessage, this.x, this.y - this.size);
         ctx.fill();
         ctx.stroke();
     }

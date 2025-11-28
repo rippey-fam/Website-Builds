@@ -1,5 +1,24 @@
 import { Player } from "./Player.js";
 
+let point = (x, y) => {
+    return { x, y };
+};
+
+function deadzone(joy, min) {
+    if (Math.hypot(joy.x, joy.y) < min) {
+        return { x: 0, y: 0 };
+    }
+    return joy;
+}
+
+function clampMagnitude({ x, y }, max, min) {
+    let dist = Math.hypot(x, y);
+    if (Math.abs(dist) < max) return deadzone({ x, y }, min);
+    let y1 = (max * y) / dist;
+    let x1 = Math.sqrt(max ** 2 - y1 ** 2) * Math.sign(x);
+    return point(x1, y1);
+}
+
 export class COM extends Player {
     constructor(x, y) {
         super(x, y, 0);
@@ -21,7 +40,7 @@ export class COM extends Player {
             x: 0,
             b: 0,
         };
-        this.shootFrameCooldown = 15;
+        this.shootFrameCooldown = 30;
     }
 
     input(context) {
@@ -69,9 +88,10 @@ export class COM extends Player {
         let angle = this.angle;
         if (closestCoor) {
             angle = Math.atan2(closestCoor.y - this.y, closestCoor.x - this.x);
-            if (closest < 300) {
+            if (closest < (this.isDead ? 500 : 200)) {
                 if (this.shoot.a === 0) {
                     this.shoot.a = this.shootFrameCooldown;
+                    this.angle += ((Math.random() - 0.5) * 2 * Math.PI) / 20;
                 }
             }
         }
@@ -99,7 +119,6 @@ export class COM extends Player {
             if (distance(this, this.wanderState.point) < 200) {
                 this.wanderState.prevPoint = { x: this.wanderState.point.x, y: this.wanderState.point.y };
                 this.wanderState.point = null;
-                console.log("got there!");
             }
         }
 
@@ -114,9 +133,7 @@ export class COM extends Player {
                     );
                     for (const point of intersectionsCopy) {
                         let direction = Math.atan2(point.y - this.y, point.x - this.x);
-                        console.log(`previous direction: ${prevPointDir}, trying direction: ${direction}`);
                         if (Math.abs(direction - prevPointDir) > Math.PI / 2) {
-                            console.log("\nit worked!\n");
                             return point;
                         }
                     }
@@ -174,7 +191,7 @@ export class COM extends Player {
 
         super.input(
             { x: Math.cos(this.angle), y: Math.sin(this.angle) },
-            gravitate,
+            clampMagnitude(gravitate, 0.75, 0),
             false,
             false,
             false,
