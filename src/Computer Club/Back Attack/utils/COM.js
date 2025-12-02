@@ -91,7 +91,6 @@ export class COM extends Player {
             if (closest < (this.isDead ? 500 : 200)) {
                 if (this.shoot.a === 0) {
                     this.shoot.a = this.shootFrameCooldown;
-                    this.angle += ((Math.random() - 0.5) * 2 * Math.PI) / 20;
                 }
             }
         }
@@ -124,21 +123,33 @@ export class COM extends Player {
 
         if (this.wanderState.point === null) {
             if (this.wanderState.timeout !== null) clearTimeout(this.wanderState.timeout);
-            let intersectionsCopy = [...intersections].sort((a, b) => b.dist - a.dist);
+            let canvasWidth = 800; // Default canvas width
+            let canvasHeight = 600; // Default canvas height
+            if (ctx && ctx.canvas) {
+                canvasWidth = ctx.canvas.width;
+                canvasHeight = ctx.canvas.height;
+            }
+            let boundaryWalls = [
+                { a: { x: 0, y: 0 }, b: { x: canvasWidth, y: 0 } }, // Top wall
+                { a: { x: canvasWidth, y: 0 }, b: { x: canvasWidth, y: canvasHeight } }, // Right wall
+                { a: { x: canvasWidth, y: canvasHeight }, b: { x: 0, y: canvasHeight } }, // Bottom wall
+                { a: { x: 0, y: canvasHeight }, b: { x: 0, y: 0 } }, // Left wall
+            ];
+            let intersections = this.getRaycast([...wall.walls, ...boundaryWalls]).sort((a, b) => b.dist - a.dist);
             let findNewPoint = () => {
                 if (this.wanderState.prevPoint !== null) {
                     let prevPointDir = Math.atan2(
                         this.wanderState.prevPoint.y - this.y,
                         this.wanderState.prevPoint.x - this.x,
                     );
-                    for (const point of intersectionsCopy) {
+                    for (const point of intersections) {
                         let direction = Math.atan2(point.y - this.y, point.x - this.x);
                         if (Math.abs(direction - prevPointDir) > Math.PI / 2) {
                             return point;
                         }
                     }
                 } else {
-                    return intersectionsCopy[0];
+                    return intersections[0];
                 }
             };
             let point = findNewPoint();

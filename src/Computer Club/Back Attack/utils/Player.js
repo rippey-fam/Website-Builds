@@ -207,9 +207,6 @@ export class Player {
         let cx = this.x + (this.radius + this.h) * cos + (this.w / 2) * cosMinus;
         let cy = this.y + (this.radius + this.h) * sin + (this.w / 2) * sinMinus;
 
-        let dx = this.x + this.radius * cos + (this.w / 2) * cosMinus;
-        let dy = this.y + this.radius * sin + (this.w / 2) * sinMinus;
-
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 10;
 

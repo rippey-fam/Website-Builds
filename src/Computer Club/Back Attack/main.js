@@ -4,6 +4,7 @@ import Wall from "./utils/Wall.js";
 import mapController from "./utils/controllerMapping.js";
 import { Queue, drawText } from "../../animationLib.js";
 import { Selector } from "./utils/Selector.js";
+import spacing from "./utils/spacing.js";
 
 /**
  * @type {HTMLCanvasElement}
@@ -93,17 +94,21 @@ let menuSelector = new Selector(
     ],
     ctx,
 );
+
+const [playerSpacing, wallSpacing] = spacing(10, 90, canvas.width, canvas.height);
+
 const startOffset = 100;
 let positions = [
-    { x: startOffset + 0.1, y: startOffset },
+    { x: startOffset, y: startOffset },
     { x: startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
     { x: startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
     { x: startOffset, y: canvas.height - startOffset },
     { x: canvas.width - startOffset, y: startOffset },
     { x: canvas.width - startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
     { x: canvas.width - startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
-    { x: canvas.width - startOffset - 0.1, y: canvas.height - startOffset },
+    { x: canvas.width - startOffset, y: canvas.height - startOffset },
 ].sort(() => Math.random() - 0.5);
+
 /**
  * @type {"starting"|"playing"|"paused"|"cutscene"|"beginning"}
  */
@@ -123,27 +128,145 @@ let wall = new Wall();
 // |________|
 
 // Left segment
-wall.addPath(margin, (canvas.height - doorHeight) / 2)
-    .V(margin) // up to top
-    .H(canvas.width - margin) // across top
-    .V((canvas.height - doorHeight) / 2); // down to door
+// wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
+//     .V(wallSpacing.side.top)
+//     .H(wallSpacing.side.right)
+//     .V(wallSpacing.box.top);
 
-// Right segment
-wall.addPath(margin, (canvas.height + doorHeight) / 2)
-    .V(canvas.height - margin) // down to bottom
-    .H(canvas.width - margin) // across bottom
-    .V((canvas.height + doorHeight) / 2); // up to door
+// wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom)
+//     .V(wallSpacing.side.bottom)
+//     .H(wallSpacing.side.right)
+//     .V(wallSpacing.box.bottom);
 
-// Center square
-const squareSize = doorHeight;
-const centerX = canvas.width / 2 - squareSize / 2;
-const centerY = canvas.height / 2 - squareSize / 2;
+// wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
+//     .h(wallSpacing.box.right - wallSpacing.box.left)
+//     .v(wallSpacing.box.bottom - wallSpacing.box.top)
+//     .h(-(wallSpacing.box.right - wallSpacing.box.left))
+//     .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
+switch (level[level.length - 1]) {
+    case "1":
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
+            .V(wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.box.top);
 
-wall.addPath(centerX, centerY) // Start at top-left of square
-    .h(squareSize) // Top line
-    .v(squareSize) // Right line
-    .h(-squareSize) // Bottom line
-    .v(-squareSize); // Left line back to start
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.box.bottom);
+
+        wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
+            .h(wallSpacing.box.right - wallSpacing.box.left)
+            .v(wallSpacing.box.bottom - wallSpacing.box.top)
+            .h(-(wallSpacing.box.right - wallSpacing.box.left))
+            .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
+        break;
+
+    case "2":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+        break;
+
+    case "3":
+        wall.addPath(wallSpacing.center, wallSpacing.box.top).V(wallSpacing.middle).H(wallSpacing.box.right);
+
+        wall.addPath(wallSpacing.center, wallSpacing.middle).V(wallSpacing.box.bottom);
+
+        wall.addPath(wallSpacing.center, wallSpacing.middle).H(wallSpacing.box.left);
+        break;
+
+    case "4":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+
+        wall.addPath(wallSpacing.center, wallSpacing.side.top).V(wallSpacing.box.top);
+
+        wall.addPath(wallSpacing.center, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.middle).H(wallSpacing.box.left);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.middle).H(wallSpacing.side.right);
+        break;
+
+    case "5":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.top).H(wallSpacing.box.left);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.box.top).H(wallSpacing.side.right);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom).H(wallSpacing.box.left);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).H(wallSpacing.side.right);
+        break;
+
+    case "7":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+        break;
+
+    case "8":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+
+        wall.addPath(wallSpacing.box.left, wallSpacing.side.top).V(wallSpacing.box.top);
+
+        wall.addPath(wallSpacing.box.left, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.side.top).V(wallSpacing.box.top);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
+        break;
+
+    case "9":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.left)
+            .V(wallSpacing.side.top);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.top).H(wallSpacing.box.left);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.box.top).H(wallSpacing.side.right);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom).H(wallSpacing.box.left);
+
+        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).H(wallSpacing.side.right);
+        break;
+    default:
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
+            .V(wallSpacing.side.top)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.box.top);
+
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.box.bottom);
+
+        wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
+            .h(wallSpacing.box.right - wallSpacing.box.left)
+            .v(wallSpacing.box.bottom - wallSpacing.box.top)
+            .h(-(wallSpacing.box.right - wallSpacing.box.left))
+            .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
+        break;
+}
 
 function game() {
     if (players.length !== 0 && interval !== null) {
