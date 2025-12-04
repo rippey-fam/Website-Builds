@@ -78,6 +78,9 @@ document.addEventListener("click", (e) => {
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "1";
+/**
+ * @type {"Plain Level"|"Golden Gun"|"No R Stick"|"Pushforward"|"Sneaky-Aim"|"Man-vs-Man"}
+ */
 const powerup = params.get("powerup") || "Plain Level";
 console.log(`Level selected: ${level}, Powerup selected: ${powerup}`);
 
@@ -388,11 +391,12 @@ function game() {
                 }),
             )
             .next(goAndStart);
-
-        let currentPlayerLen = players.length;
-        for (let i = 0; i < playerCount - currentPlayerLen; i++) {
-            let position = positions.pop();
-            players.push(new COM(position.x, position.y));
+        if (powerup !== "Man-vs-Man") {
+            let currentPlayerLen = players.length;
+            for (let i = 0; i < playerCount - currentPlayerLen; i++) {
+                let position = positions.pop();
+                players.push(new COM(position.x, position.y));
+            }
         }
     }
     if (players.length !== 0) {
