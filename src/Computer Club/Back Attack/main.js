@@ -77,7 +77,7 @@ document.addEventListener("click", (e) => {
 });
 
 const params = new URLSearchParams(window.location.search);
-const level = params.get("level") || 1;
+const level = params.get("level") || "1";
 const powerup = params.get("powerup") || "Plain Level";
 console.log(`Level selected: ${level}, Powerup selected: ${powerup}`);
 
@@ -89,61 +89,32 @@ let menuSelector = new Selector(
     canvas.width / 2,
     120,
     [
-        ["Golden Gun", "No R Stick", "Pushforward", "Sneaky-Aim", "Man-vs-Man", "Plain Level"],
+        ["Plain Level", "Golden Gun", "No R Stick", "Pushforward", "Sneaky-Aim", "Man-vs-Man"],
         ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"],
     ],
     ctx,
+    [powerup, "Level " + level],
 );
 
 const [playerSpacing, wallSpacing] = spacing(10, 90, canvas.width, canvas.height);
 
 const startOffset = 100;
 let positions = [
-    { x: startOffset, y: startOffset },
-    { x: startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
-    { x: startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
-    { x: startOffset, y: canvas.height - startOffset },
-    { x: canvas.width - startOffset, y: startOffset },
-    { x: canvas.width - startOffset, y: startOffset + (canvas.height - 2 * startOffset) / 3 },
-    { x: canvas.width - startOffset, y: startOffset + (2 * (canvas.height - 2 * startOffset)) / 3 },
-    { x: canvas.width - startOffset, y: canvas.height - startOffset },
+    playerSpacing.quarter.left[0],
+    playerSpacing.quarter.left[1],
+    playerSpacing.quarter.left[2],
+    playerSpacing.quarter.left[3],
+    playerSpacing.quarter.right[0],
+    playerSpacing.quarter.right[1],
+    playerSpacing.quarter.right[2],
+    playerSpacing.quarter.right[3],
 ].sort(() => Math.random() - 0.5);
 
 /**
  * @type {"starting"|"playing"|"paused"|"cutscene"|"beginning"}
  */
-let gameState = "beginning";
-let place = 0;
-let pausedPlayerID = null;
-let playerCount = 8;
-playerCount = playerCount > positions.length ? positions.length : playerCount;
-
-const margin = 10;
-const doorHeight = canvas.height / 3;
 let wall = new Wall();
-// shape like this:
-//  ________
-// |   _    |
-//    |_|
-// |________|
-
-// Left segment
-// wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
-//     .V(wallSpacing.side.top)
-//     .H(wallSpacing.side.right)
-//     .V(wallSpacing.box.top);
-
-// wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom)
-//     .V(wallSpacing.side.bottom)
-//     .H(wallSpacing.side.right)
-//     .V(wallSpacing.box.bottom);
-
-// wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
-//     .h(wallSpacing.box.right - wallSpacing.box.left)
-//     .v(wallSpacing.box.bottom - wallSpacing.box.top)
-//     .h(-(wallSpacing.box.right - wallSpacing.box.left))
-//     .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
-switch (level[level.length - 1]) {
+switch (level) {
     case "1":
         wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
             .V(wallSpacing.side.top)
@@ -156,10 +127,21 @@ switch (level[level.length - 1]) {
             .V(wallSpacing.box.bottom);
 
         wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
-            .h(wallSpacing.box.right - wallSpacing.box.left)
-            .v(wallSpacing.box.bottom - wallSpacing.box.top)
-            .h(-(wallSpacing.box.right - wallSpacing.box.left))
-            .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
+            .H(wallSpacing.box.right)
+            .V(wallSpacing.box.bottom)
+            .H(wallSpacing.box.left)
+            .V(wallSpacing.box.top);
+
+        positions = [
+            playerSpacing.quarter.left[0],
+            playerSpacing.quarter.left[1],
+            playerSpacing.quarter.left[2],
+            playerSpacing.quarter.left[3],
+            playerSpacing.quarter.right[0],
+            playerSpacing.quarter.right[1],
+            playerSpacing.quarter.right[2],
+            playerSpacing.quarter.right[3],
+        ].sort(() => Math.random() - 0.5);
         break;
 
     case "2":
@@ -168,54 +150,119 @@ switch (level[level.length - 1]) {
             .V(wallSpacing.side.bottom)
             .H(wallSpacing.side.left)
             .V(wallSpacing.side.top);
+
+        positions = [
+            playerSpacing.third.left[0],
+            playerSpacing.third.left[1],
+            playerSpacing.third.left[2],
+            playerSpacing.third.right[0],
+            playerSpacing.third.right[1],
+            playerSpacing.third.right[2],
+            playerSpacing.third.top[1],
+            playerSpacing.third.bottom[1],
+        ].sort(() => Math.random() - 0.5);
         break;
 
     case "3":
-        wall.addPath(wallSpacing.center, wallSpacing.box.top).V(wallSpacing.middle).H(wallSpacing.box.right);
-
-        wall.addPath(wallSpacing.center, wallSpacing.middle).V(wallSpacing.box.bottom);
-
-        wall.addPath(wallSpacing.center, wallSpacing.middle).H(wallSpacing.box.left);
-        break;
-
-    case "4":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
+            .H(wallSpacing.box.left)
+            .V(wallSpacing.box.top)
+            .H(wallSpacing.box.right)
+            .V(wallSpacing.side.top)
             .H(wallSpacing.side.right)
+            .V(wallSpacing.side.bottom)
+            .H(wallSpacing.box.right)
+            .V(wallSpacing.box.bottom)
+            .H(wallSpacing.box.left)
             .V(wallSpacing.side.bottom)
             .H(wallSpacing.side.left)
             .V(wallSpacing.side.top);
 
-        wall.addPath(wallSpacing.center, wallSpacing.side.top).V(wallSpacing.box.top);
+        positions = [
+            playerSpacing.middle.top.left,
+            playerSpacing.middle.top.right,
+            playerSpacing.middle.bottom.left,
+            playerSpacing.middle.bottom.right,
+            playerSpacing.quarter.left[0],
+            playerSpacing.quarter.left[3],
+            playerSpacing.quarter.right[0],
+            playerSpacing.quarter.right[3],
+        ].sort(() => Math.random() - 0.5);
+        break;
 
-        wall.addPath(wallSpacing.center, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
-
-        wall.addPath(wallSpacing.side.left, wallSpacing.middle).H(wallSpacing.box.left);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.middle).H(wallSpacing.side.right);
+    case "4":
+        wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
+            .H(wallSpacing.box.left)
+            .V(wallSpacing.side.top)
+            .addPath(wallSpacing.side.right, wallSpacing.box.top)
+            .H(wallSpacing.box.right)
+            .V(wallSpacing.side.top)
+            .addPath(wallSpacing.side.left, wallSpacing.box.bottom)
+            .H(wallSpacing.box.left)
+            .V(wallSpacing.side.bottom)
+            .addPath(wallSpacing.side.right, wallSpacing.box.bottom)
+            .H(wallSpacing.box.right)
+            .V(wallSpacing.side.bottom);
+        positions = [
+            playerSpacing.third.left[1],
+            playerSpacing.third.right[1],
+            playerSpacing.third.top[1],
+            playerSpacing.third.bottom[1],
+            playerSpacing.middle.top.left,
+            playerSpacing.middle.top.right,
+            playerSpacing.middle.bottom.left,
+            playerSpacing.middle.bottom.right,
+        ].sort(() => Math.random() - 0.5);
         break;
 
     case "5":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
-            .H(wallSpacing.side.right)
             .V(wallSpacing.side.bottom)
-            .H(wallSpacing.side.left)
-            .V(wallSpacing.side.top);
+            .addPath(wallSpacing.side.right, wallSpacing.side.top)
+            .V(wallSpacing.side.bottom);
 
-        wall.addPath(wallSpacing.side.left, wallSpacing.box.top).H(wallSpacing.box.left);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.box.top).H(wallSpacing.side.right);
-
-        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom).H(wallSpacing.box.left);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).H(wallSpacing.side.right);
+        positions = [
+            playerSpacing.third.left[0],
+            playerSpacing.third.left[1],
+            playerSpacing.third.left[2],
+            playerSpacing.third.right[0],
+            playerSpacing.third.right[1],
+            playerSpacing.third.right[2],
+            playerSpacing.third.top[1],
+            playerSpacing.third.bottom[1],
+        ].sort(() => Math.random() - 0.5);
         break;
-
-    case "7":
-        wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
-            .H(wallSpacing.side.right)
+    case "6":
+        wall.addPath(wallSpacing.center, wallSpacing.side.top)
             .V(wallSpacing.side.bottom)
-            .H(wallSpacing.side.left)
-            .V(wallSpacing.side.top);
+            .addPath(wallSpacing.side.left, wallSpacing.middle)
+            .H(wallSpacing.side.right);
+        positions = [
+            playerSpacing.middle.top.left,
+            playerSpacing.middle.top.right,
+            playerSpacing.middle.bottom.left,
+            playerSpacing.middle.bottom.right,
+            playerSpacing.quarter.left[0],
+            playerSpacing.quarter.left[3],
+            playerSpacing.quarter.right[0],
+            playerSpacing.quarter.right[3],
+        ].sort(() => Math.random() - 0.5);
+        break;
+    case "7":
+        wall.addPath(wallSpacing.center, wallSpacing.box.top)
+            .V(wallSpacing.box.bottom)
+            .addPath(wallSpacing.box.left, wallSpacing.middle)
+            .H(wallSpacing.box.right);
+        positions = [
+            playerSpacing.middle.top.left,
+            playerSpacing.middle.top.right,
+            playerSpacing.middle.bottom.left,
+            playerSpacing.middle.bottom.right,
+            playerSpacing.quarter.left[0],
+            playerSpacing.quarter.left[3],
+            playerSpacing.quarter.right[0],
+            playerSpacing.quarter.right[3],
+        ].sort(() => Math.random() - 0.5);
         break;
 
     case "8":
@@ -224,30 +271,45 @@ switch (level[level.length - 1]) {
             .V(wallSpacing.side.bottom)
             .H(wallSpacing.side.left)
             .V(wallSpacing.side.top);
-
-        wall.addPath(wallSpacing.box.left, wallSpacing.side.top).V(wallSpacing.box.top);
-
-        wall.addPath(wallSpacing.box.left, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.side.top).V(wallSpacing.box.top);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).V(wallSpacing.side.bottom);
+        wall.addPath(wallSpacing.side.left, wallSpacing.middle)
+            .H(wallSpacing.box.left)
+            .addPath(wallSpacing.side.right, wallSpacing.middle)
+            .H(wallSpacing.box.right);
+        wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
+            .V(wallSpacing.box.bottom)
+            .addPath(wallSpacing.box.right, wallSpacing.box.top)
+            .V(wallSpacing.box.bottom);
+        positions = [
+            playerSpacing.quarter.left[0],
+            playerSpacing.quarter.left[1],
+            playerSpacing.quarter.left[2],
+            playerSpacing.quarter.left[3],
+            playerSpacing.quarter.right[0],
+            playerSpacing.quarter.right[1],
+            playerSpacing.quarter.right[2],
+            playerSpacing.quarter.right[3],
+        ].sort(() => Math.random() - 0.5);
         break;
 
     case "9":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
-            .H(wallSpacing.side.right)
             .V(wallSpacing.side.bottom)
-            .H(wallSpacing.side.left)
-            .V(wallSpacing.side.top);
-
-        wall.addPath(wallSpacing.side.left, wallSpacing.box.top).H(wallSpacing.box.left);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.box.top).H(wallSpacing.side.right);
-
-        wall.addPath(wallSpacing.side.left, wallSpacing.box.bottom).H(wallSpacing.box.left);
-
-        wall.addPath(wallSpacing.box.right, wallSpacing.box.bottom).H(wallSpacing.side.right);
+            .addPath(wallSpacing.side.right, wallSpacing.side.top)
+            .V(wallSpacing.side.bottom);
+        wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
+            .V(wallSpacing.box.bottom)
+            .addPath(wallSpacing.box.right, wallSpacing.box.top)
+            .V(wallSpacing.box.bottom);
+        positions = [
+            playerSpacing.third.left[0],
+            playerSpacing.third.left[1],
+            playerSpacing.third.left[2],
+            playerSpacing.third.right[0],
+            playerSpacing.third.right[1],
+            playerSpacing.third.right[2],
+            playerSpacing.third.top[1],
+            playerSpacing.third.bottom[1],
+        ].sort(() => Math.random() - 0.5);
         break;
     default:
         wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
@@ -267,6 +329,12 @@ switch (level[level.length - 1]) {
             .v(-(wallSpacing.box.bottom - wallSpacing.box.top));
         break;
 }
+
+let gameState = "beginning";
+let place = 0;
+let pausedPlayerID = null;
+let playerCount = 8;
+playerCount = playerCount > positions.length ? positions.length : playerCount;
 
 function game() {
     if (players.length !== 0 && interval !== null) {
@@ -363,7 +431,7 @@ function game() {
                                     level.at(-1),
                                 )}`;
                             }
-                            if (mapping.select) gameState = "playing";
+                            if (mapping.b) gameState = "playing";
                         }
                     }
                 } else {

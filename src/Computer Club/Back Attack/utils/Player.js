@@ -31,7 +31,7 @@ export class Player {
         "hsl(45, 90%, 45%)", // Gold/Mustard
         "hsl(280, 50%, 30%)", // Deep Violet
     ];
-    constructor(x, y, playerNumber) {
+    constructor(x, y, playerNumber, options = {}) {
         this.x = x;
         this.y = y;
         this.radius = 15;

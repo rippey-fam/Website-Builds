@@ -20,8 +20,8 @@ function clampMagnitude({ x, y }, max, min) {
 }
 
 export class COM extends Player {
-    constructor(x, y) {
-        super(x, y, 0);
+    constructor(x, y, options = {}) {
+        super(x, y, 0, options);
         this.color = "hsl(0, 0%, 40%)";
         /**
          * @type {"wandering"|"hunting"|"escaping"}

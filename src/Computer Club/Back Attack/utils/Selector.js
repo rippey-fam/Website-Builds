@@ -1,10 +1,15 @@
 export class Selector {
-    constructor(x, y, choices, ctx) {
+    constructor(x, y, choices, ctx, defaultChoices = [null, null]) {
         this.x = x;
         this.y = y;
         this.choices = choices;
         this.i = 0;
         this.j = 0;
+        console.log(choices);
+        console.log(defaultChoices);
+        console.log(choices[0].indexOf(defaultChoices[0]), choices[1].indexOf(defaultChoices[1]));
+        if (choices[0].indexOf(defaultChoices[0]) !== -1) this.i = choices[0].indexOf(defaultChoices[0]);
+        if (choices[1].indexOf(defaultChoices[1]) !== -1) this.j = choices[1].indexOf(defaultChoices[1]);
         this.prevAxis = { x: 0, y: 0 };
         this.prevSelect = false;
         this.size = 50;
@@ -28,12 +33,12 @@ export class Selector {
     }
     input(axis, select) {
         if (Math.abs(this.prevAxis.x) && axis.x === 0) {
-            this.i += this.prevAxis.x;
+            this.i -= this.prevAxis.x;
             this.i %= this.choices[0].length;
             if (this.i < 0) this.i += this.choices[0].length;
         }
         if (Math.abs(this.prevAxis.y) && axis.y === 0) {
-            this.j += this.prevAxis.y;
+            this.j -= this.prevAxis.y;
             this.j %= this.choices[1].length;
             if (this.j < 0) this.j += this.choices[1].length;
         }
