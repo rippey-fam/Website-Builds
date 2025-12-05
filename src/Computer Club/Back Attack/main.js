@@ -60,7 +60,7 @@ window.addEventListener("resize", resize);
 function onGamepadConnected(e) {
     if (gameState === "beginning") {
         let position = positions.pop();
-        players.push(new Player(position.x, position.y, players.length));
+        players.push(new Player(position.x, position.y, players.length, { drawNozzle: powerup === "Sneaky-Aim" }));
         indexes.push(e.gamepad.index);
         if (players.length === playerCount) window.removeEventListener("gamepadconnected", onGamepadConnected);
     } else window.removeEventListener("gamepadconnected", onGamepadConnected);
@@ -79,7 +79,7 @@ document.addEventListener(
     (e) => {
         if (e.key === " ") {
             let position = positions.pop();
-            players.push(new COM(position.x, position.y));
+            players.push(new COM(position.x, position.y, { drawNozzle: powerup === "Sneaky-Aim" }));
         }
     },
     { once: true },
@@ -87,7 +87,7 @@ document.addEventListener(
 
 document.addEventListener("click", (e) => {
     let canvasBounds = canvas.getBoundingClientRect();
-    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y));
+    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y, { drawNozzle: powerup === "Sneaky-Aim" }));
 });
 
 const params = new URLSearchParams(window.location.search);
@@ -106,7 +106,7 @@ let menuSelector = new Selector(
     canvas.width / 2,
     120,
     [
-        ["Plain Level", "Golden Gun", "No R Stick", "Pushforward", "Sneaky-Aim", "Man-vs-Man"],
+        ["Plain Level", "Sneaky-Aim", "Man-vs-Man" /*"Golden Gun", "No R Stick", "Pushforward"*/],
         ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"],
     ],
     ctx,
@@ -409,7 +409,7 @@ function game() {
             let currentPlayerLen = players.length;
             for (let i = 0; i < playerCount - currentPlayerLen; i++) {
                 let position = positions.pop();
-                players.push(new COM(position.x, position.y));
+                players.push(new COM(position.x, position.y, { drawNozzle: powerup === "Sneaky-Aim" }));
             }
         }
     }

@@ -57,6 +57,7 @@ export class Player {
         this.place = 0;
         this.friction = 0.015;
         this.isDead = false;
+        this.drawNozzle = options.drawNozzle || false;
     }
     input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
@@ -195,67 +196,90 @@ export class Player {
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx) {
-        let cos = Math.cos(this.angle);
-        let sin = Math.sin(this.angle);
-        let cosPlus = Math.cos(this.angle + Math.PI / 2);
-        let sinPlus = Math.sin(this.angle + Math.PI / 2);
-        let cosMinus = Math.cos(this.angle - Math.PI / 2);
-        let sinMinus = Math.sin(this.angle - Math.PI / 2);
+        if (!this.drawNozzle) {
+            let cos = Math.cos(this.angle);
+            let sin = Math.sin(this.angle);
+            let cosPlus = Math.cos(this.angle + Math.PI / 2);
+            let sinPlus = Math.sin(this.angle + Math.PI / 2);
+            let cosMinus = Math.cos(this.angle - Math.PI / 2);
+            let sinMinus = Math.sin(this.angle - Math.PI / 2);
 
-        let ax = this.x + (this.radius + this.h) * cos + (this.w / 2) * cosPlus;
-        let ay = this.y + (this.radius + this.h) * sin + (this.w / 2) * sinPlus;
+            let ax = this.x + (this.radius + this.h) * cos + (this.w / 2) * cosPlus;
+            let ay = this.y + (this.radius + this.h) * sin + (this.w / 2) * sinPlus;
 
-        let bx = this.x + this.radius * cos + (this.w / 2) * cosPlus;
-        let by = this.y + this.radius * sin + (this.w / 2) * sinPlus;
+            let bx = this.x + this.radius * cos + (this.w / 2) * cosPlus;
+            let by = this.y + this.radius * sin + (this.w / 2) * sinPlus;
 
-        let cx = this.x + (this.radius + this.h) * cos + (this.w / 2) * cosMinus;
-        let cy = this.y + (this.radius + this.h) * sin + (this.w / 2) * sinMinus;
+            let cx = this.x + (this.radius + this.h) * cos + (this.w / 2) * cosMinus;
+            let cy = this.y + (this.radius + this.h) * sin + (this.w / 2) * sinMinus;
 
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 10;
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 10;
 
-        ctx.fillStyle = "white";
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(ax, ay);
-        ctx.lineTo(bx, by);
-        ctx.arc(
-            this.x,
-            this.y,
-            this.radius,
-            this.angle + Math.asin(this.w / 2 / this.radius),
-            this.angle - Math.asin(this.w / 2 / this.radius),
-            true,
-        );
-        ctx.lineTo(cx, cy);
-        ctx.closePath();
+            ctx.fillStyle = "white";
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(bx, by);
+            ctx.arc(
+                this.x,
+                this.y,
+                this.radius,
+                this.angle + Math.asin(this.w / 2 / this.radius),
+                this.angle - Math.asin(this.w / 2 / this.radius),
+                true,
+            );
+            ctx.lineTo(cx, cy);
+            ctx.closePath();
 
-        ctx.moveTo(this.x + this.radius, this.y);
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.moveTo(this.x + this.radius, this.y);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
 
-        ctx.stroke();
-        ctx.fill();
+            ctx.stroke();
+            ctx.fill();
 
-        ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(ax, ay);
-        ctx.lineTo(bx, by);
-        ctx.arc(
-            this.x,
-            this.y,
-            this.radius,
-            this.angle + Math.asin(this.w / 2 / this.radius),
-            this.angle - Math.asin(this.w / 2 / this.radius),
-            true,
-        );
-        ctx.lineTo(cx, cy);
-        ctx.closePath();
+            ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(bx, by);
+            ctx.arc(
+                this.x,
+                this.y,
+                this.radius,
+                this.angle + Math.asin(this.w / 2 / this.radius),
+                this.angle - Math.asin(this.w / 2 / this.radius),
+                true,
+            );
+            ctx.lineTo(cx, cy);
+            ctx.closePath();
 
-        ctx.moveTo(this.x + this.radius, this.y);
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.moveTo(this.x + this.radius, this.y);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
 
-        ctx.fill();
+            ctx.fill();
+        } else {
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 10;
+
+            ctx.fillStyle = "white";
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(this.x + this.radius, this.y);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
+            ctx.lineCap = "round";
+
+            ctx.moveTo(this.x + this.radius, this.y);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        }
         if (this.place !== 0) {
             ctx.beginPath();
             ctx.font = "30px Himagsikan";
