@@ -82,12 +82,14 @@ export default class Wall {
         ctx.moveTo(this.walls[0].a.x, this.walls[0].a.y);
         ctx.lineTo(this.walls[0].b.x, this.walls[0].b.y);
         for (let i = 1; i < this.walls.length; i++) {
-            if (this.walls[i - 1].b.x === this.walls[i].a.x && this.walls[i - 1].b.y === this.walls[i].a.y) {
-                ctx.lineTo(this.walls[i].b.x, this.walls[i].b.y);
-            } else {
-                ctx.moveTo(this.walls[i].a.x, this.walls[i].a.y);
-                ctx.lineTo(this.walls[i].b.x, this.walls[i].b.y);
-            }
+            ctx.moveTo(this.walls[i].a.x, this.walls[i].a.y);
+            ctx.lineTo(this.walls[i].b.x, this.walls[i].b.y);
+            // if (this.walls[i - 1].b.x === this.walls[i].a.x && this.walls[i - 1].b.y === this.walls[i].a.y) {
+            //     ctx.lineTo(this.walls[i].b.x, this.walls[i].b.y);
+            // } else {
+            //     ctx.moveTo(this.walls[i].a.x, this.walls[i].a.y);
+            //     ctx.lineTo(this.walls[i].b.x, this.walls[i].b.y);
+            // }
         }
         ctx.stroke();
     }

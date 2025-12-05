@@ -20,6 +20,10 @@ function clampMagnitude({ x, y }, max, min) {
     return point(x1, y1);
 }
 
+function clamp(x, min, max) {
+    return Math.min(Math.max(x, min), max);
+}
+
 export class Player {
     colors = [
         "hsl(0, 85%, 45%)", // Red
@@ -232,9 +236,29 @@ export class Player {
         ctx.stroke();
         ctx.fill();
 
+        ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(bx, by);
+        ctx.arc(
+            this.x,
+            this.y,
+            this.radius,
+            this.angle + Math.asin(this.w / 2 / this.radius),
+            this.angle - Math.asin(this.w / 2 / this.radius),
+            true,
+        );
+        ctx.lineTo(cx, cy);
+        ctx.closePath();
+
+        ctx.moveTo(this.x + this.radius, this.y);
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+
+        ctx.fill();
         if (this.place !== 0) {
             ctx.beginPath();
-            ctx.font = "25px Arial";
+            ctx.font = "30px Himagsikan";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillStyle = this.color;
@@ -254,7 +278,19 @@ export class Player {
                 }
             }
             let r = this.y < 75 ? 1 : -1;
-            ctx.fillText(this.place + suffix, this.x, this.y + r * (this.radius + 25));
+            let length = ctx.measureText(this.place + suffix).width;
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 7;
+            ctx.strokeText(
+                this.place + suffix,
+                clamp(this.x, length / 2 + 5, ctx.canvas.width - length / 2 - 5),
+                this.y + r * (this.radius + 32),
+            );
+            ctx.fillText(
+                this.place + suffix,
+                clamp(this.x, length / 2 + 5, ctx.canvas.width - length / 2 - 5),
+                this.y + r * (this.radius + 32),
+            );
             ctx.fill();
             ctx.stroke();
         }

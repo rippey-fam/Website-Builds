@@ -6,6 +6,37 @@ import { Queue, drawText } from "../../animationLib.js";
 import { Selector } from "./utils/Selector.js";
 import spacing from "./utils/spacing.js";
 
+let f = new FontFace("Himagsikan", "url(./fonts/himagsikan.ttf)");
+let interval;
+
+f.load().then(function (font) {
+    // Ready to use the font in a canvas context
+    console.log("font ready");
+
+    // Add font on the html page
+    document.fonts.add(font);
+    ctx.font = "30px Himagsikan";
+    let message = "Connect Your Controller OR Press Space";
+    let length = ctx.measureText(message).width;
+    console.log(length);
+    ctx.textAlign = "left";
+    ctx.fillText(message, canvas.width / 2 - length / 2, canvas.height / 2);
+    let count = 0;
+    interval = setInterval(() => {
+        let length = ctx.measureText(message).width;
+        ctx.textAlign = "left";
+        ctx.font = "30px Himagsikan";
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillText(
+            message + (count % 4 === 1 ? "." : count % 4 === 2 ? ".." : count % 4 === 3 ? "..." : ""),
+            canvas.width / 2 - length / 2,
+            canvas.height / 2,
+        );
+        ctx.fill();
+        count++;
+    }, 200);
+});
+
 /**
  * @type {HTMLCanvasElement}
  */
@@ -25,23 +56,6 @@ function resize() {
 }
 resize();
 window.addEventListener("resize", resize);
-
-ctx.fillText("Connect Your Controller", canvas.width / 2 - 200, canvas.height / 2);
-let count = 0;
-ctx.textAlign = "left";
-ctx.font = "30px Arial";
-let interval = setInterval(() => {
-    ctx.textAlign = "left";
-    ctx.font = "30px Arial";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillText(
-        "Connect Your Controller" + (count % 4 === 1 ? "." : count % 4 === 2 ? ".." : count % 4 === 3 ? "..." : ""),
-        canvas.width / 2 - 200,
-        canvas.height / 2,
-    );
-    ctx.fill();
-    count++;
-}, 200);
 
 function onGamepadConnected(e) {
     if (gameState === "beginning") {
@@ -99,7 +113,7 @@ let menuSelector = new Selector(
     [powerup, "Level " + level],
 );
 
-const [playerSpacing, wallSpacing] = spacing(10, 90, canvas.width, canvas.height);
+const [playerSpacing, wallSpacing] = spacing(5, 90, canvas.width, canvas.height);
 
 const startOffset = 100;
 let positions = [
@@ -349,7 +363,7 @@ function game() {
             drawText({
                 time: 1000,
                 text: "GO!",
-                textStyle: { size: 100, font: "Arial" },
+                textStyle: { size: 100, font: "Himagsikan" },
                 color: { r: 255, g: 0, b: 0 },
                 p: { x: canvas.width / 2, y: canvas.height / 2 },
                 equation: "easeIn",
@@ -361,7 +375,7 @@ function game() {
                 drawText({
                     time: 1000,
                     text: "3",
-                    textStyle: { size: 100, font: "Arial" },
+                    textStyle: { size: 100, font: "Himagsikan" },
                     color: { r: 255, g: 0, b: 0 },
                     p: { x: canvas.width / 2, y: canvas.height / 2 },
                     equation: "easeIn",
@@ -372,7 +386,7 @@ function game() {
                 drawText({
                     time: 1000,
                     text: "2",
-                    textStyle: { size: 100, font: "Arial" },
+                    textStyle: { size: 100, font: "Himagsikan" },
                     color: { r: 255, g: 0, b: 0 },
                     p: { x: canvas.width / 2, y: canvas.height / 2 },
                     equation: "easeIn",
@@ -383,7 +397,7 @@ function game() {
                 drawText({
                     time: 1000,
                     text: "1",
-                    textStyle: { size: 100, font: "Arial" },
+                    textStyle: { size: 100, font: "Himagsikan" },
                     color: { r: 255, g: 0, b: 0 },
                     p: { x: canvas.width / 2, y: canvas.height / 2 },
                     equation: "easeIn",

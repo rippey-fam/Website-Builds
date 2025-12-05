@@ -1,5 +1,5 @@
 body {
-    background-color: rgb(240, 240, 240);
+    background-color: rgb(217, 217, 217);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,6 +10,6 @@ body {
 }
 canvas {
     background-color: white;
-    border-radius: 10px;
-    border: 1px black solid;
+    border-radius: 5px;
+    /* border: 1px solid black; */
 }

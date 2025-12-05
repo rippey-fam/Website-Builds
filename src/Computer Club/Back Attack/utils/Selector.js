@@ -5,9 +5,6 @@ export class Selector {
         this.choices = choices;
         this.i = 0;
         this.j = 0;
-        console.log(choices);
-        console.log(defaultChoices);
-        console.log(choices[0].indexOf(defaultChoices[0]), choices[1].indexOf(defaultChoices[1]));
         if (choices[0].indexOf(defaultChoices[0]) !== -1) this.i = choices[0].indexOf(defaultChoices[0]);
         if (choices[1].indexOf(defaultChoices[1]) !== -1) this.j = choices[1].indexOf(defaultChoices[1]);
         this.prevAxis = { x: 0, y: 0 };
@@ -16,15 +13,15 @@ export class Selector {
         this.smallerSize = this.size - 10;
         let longest1 = 0;
         let longest2 = 0;
-        ctx.font = `${this.size}px Arial`;
+        ctx.font = `${this.size}px Himagsikan`;
         for (const choice of choices[0]) {
-            let length = ctx.measureText(choice).width;
+            let length = ctx.measureText(choice).width + 15;
             if (length > longest1) {
                 longest1 = length;
             }
         }
         for (const choice of choices[1]) {
-            let length = ctx.measureText(choice + " ,").width;
+            let length = ctx.measureText(choice + " ,").width + 15;
             if (length > longest2) {
                 longest2 = length;
             }
@@ -50,7 +47,7 @@ export class Selector {
     }
     draw(ctx) {
         ctx.fillStyle = "black";
-        ctx.font = `${this.size}px Arial`;
+        ctx.font = `${this.size}px Himagsikan`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.strokeStyle = "white";
@@ -61,7 +58,7 @@ export class Selector {
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = `${this.smallerSize}px Arial`;
+        ctx.font = `${this.smallerSize}px Himagsikan`;
         ctx.fillStyle = "rgba(0, 0, 0, 0.69)";
 
         ctx.textAlign = "right";
