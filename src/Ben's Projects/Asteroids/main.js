@@ -4,11 +4,16 @@ function clamp(variable, max, min) {
     return variable;
 }
 
+function distance(p1, p2) {
+    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+}
+
 class Asteroid {
     constructor(x, y, size) {
         this.x = x;
         this.y = y;
         this.size = size;
+        this.radius = 10 * size;
         this.angle = 0;
         this.velocity = { x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2 };
     }
@@ -28,21 +33,8 @@ class Asteroid {
             this.y = -this.size * 10;
         }
         for (const bullet of bullets) {
-            if (Math.hypot(this.x - bullet.x, this.y - bullet.y) < this.size * 10) {
-                for (let i = 0; i < 2 * Math.PI; i += Math.PI / 8) {
-                    bullets.push(
-                        new Bullet({
-                            x: this.x + Math.cos(i) * this.size * 10 + 5,
-                            y: this.y + Math.sin(i) * this.size * 10 + 5,
-                            angle: i,
-                            speed: 20,
-                            h: 5,
-                            w: 2,
-                            round: true,
-                            color: "white",
-                        }),
-                    );
-                }
+            if (Math.hypot(this.x - bullet.x, this.y - bullet.y) < this.radius) {
+                bullets.splice(bullets.indexOf(bullet), 1);
                 return true;
             }
         }
@@ -52,7 +44,7 @@ class Asteroid {
         ctx.lineWidth = 5;
         ctx.strokeStyle = "white";
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 10 * this.size, 0, 2 * Math.PI);
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.stroke();
     }
@@ -93,7 +85,7 @@ class Player {
         this.speed = 0.1;
         this.angle = Math.PI / 2;
         this.maxSpeed = 10;
-        this.rotationSpeed = 0.1;
+        this.rotationSpeed = 0.07;
         this.shape = [
             { x: 0, y: -11 },
             { x: -10, y: 8 },
@@ -101,6 +93,11 @@ class Player {
             { x: 10, y: 8 },
         ];
         this.space = false;
+        this.friction = 0.01;
+        this.lives = 3;
+        this.isDead = false;
+        this.radius = 8;
+        this.wasTouchingAsteroid = false;
     }
     input(keyMap, bullets) {
         this.angle += keyMap.x * this.rotationSpeed;
@@ -108,13 +105,16 @@ class Player {
         this.velocity.y += Math.sin(this.angle) * this.speed * keyMap.y;
         this.velocity.x = clamp(this.velocity.x, 10, -10);
         this.velocity.y = clamp(this.velocity.y, 10, -10);
+
+        this.velocity.x *= 1 - this.friction;
+        this.velocity.y *= 1 - this.friction;
         if (!keyMap.space && this.space) {
             bullets.push(
                 new Bullet({
                     x: this.x + Math.cos(this.angle) * -11,
                     y: this.y + Math.sin(this.angle) * -11,
                     angle: this.angle - Math.PI,
-                    speed: 20,
+                    speed: 15,
                     h: 5,
                     w: 2,
                     round: true,
@@ -128,7 +128,7 @@ class Player {
         this.x += this.velocity.x;
         this.y += this.velocity.y;
     }
-    act() {
+    act(asteroids) {
         if (this.x < 0) {
             this.x = canvas.width;
         } else if (this.x > canvas.width) {
@@ -139,6 +139,19 @@ class Player {
         } else if (this.y > canvas.height) {
             this.y = 0;
         }
+        let touchingAnyAsteroid = false;
+        asteroids.forEach((asteroid) => {
+            if (distance(this, asteroid) < asteroid.radius + this.radius) {
+                if (!this.wasTouchingAsteroid) {
+                    this.lives--;
+                }
+                touchingAnyAsteroid = true;
+                if (this.lives < 0) {
+                    this.isDead = true;
+                }
+            }
+        });
+        this.wasTouchingAsteroid = touchingAnyAsteroid;
     }
     /**
      *
@@ -169,6 +182,13 @@ class Player {
         }
         ctx.closePath();
         ctx.stroke();
+        ctx.fill();
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.beginPath();
+        ctx.fillText(this.lives, this.x, this.y - 20);
+        ctx.closePath();
         ctx.fill();
     }
 }
@@ -238,7 +258,7 @@ function game() {
     bullets.forEach((bullet) => bullet.move());
     asteroids.forEach((asteroid) => asteroid.move());
 
-    player.act();
+    player.act(asteroids);
     bullets.forEach((bullet) => {
         let deleteBullet = bullet.act();
         if (deleteBullet) {
