@@ -237,12 +237,19 @@ class Bullet {
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 function resize() {
-    canvas.height = window.innerHeight * 0.95;
-    canvas.width = window.innerWidth * 0.95;
+    let windowRatio = window.innerHeight / window.innerWidth;
+    let canvasRatio = canvas.height / canvas.width;
+    let windowTooNarrow = windowRatio > canvasRatio;
+    if (windowTooNarrow) {
+        canvas.style.width = `${window.innerWidth * 0.95}px`;
+        canvas.style.height = "auto";
+    } else {
+        canvas.style.width = "auto";
+        canvas.style.height = `${window.innerHeight * 0.95}px`;
+    }
 }
-
-window.addEventListener("resize", resize);
 resize();
+window.addEventListener("resize", resize);
 
 let keyDown = {
     x: 0,
