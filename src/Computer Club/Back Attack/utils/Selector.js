@@ -10,18 +10,19 @@ export class Selector {
         this.prevAxis = { x: 0, y: 0 };
         this.prevSelect = false;
         this.size = 50;
-        this.smallerSize = this.size - 10;
+        this.smallerSize = this.size - 15;
         let longest1 = 0;
         let longest2 = 0;
         ctx.font = `${this.size}px Himagsikan`;
+        let margin = 25;
         for (const choice of choices[0]) {
-            let length = ctx.measureText(choice).width + 15;
+            let length = ctx.measureText(choice).width + margin;
             if (length > longest1) {
                 longest1 = length;
             }
         }
         for (const choice of choices[1]) {
-            let length = ctx.measureText(choice + " ,").width + 15;
+            let length = ctx.measureText(choice + " ,").width + margin;
             if (length > longest2) {
                 longest2 = length;
             }
@@ -46,12 +47,15 @@ export class Selector {
         this.prevSelect = select;
     }
     draw(ctx) {
+        ctx.fillStyle = "#00000042";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
         ctx.fillStyle = "black";
         ctx.font = `${this.size}px Himagsikan`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.strokeStyle = "white";
-        ctx.lineWidth = "10px";
+        ctx.lineWidth = 3;
         let currentSelection = this.choices[1][this.j] + ", " + this.choices[0][this.i];
         ctx.strokeText(currentSelection, this.x, this.y);
         ctx.fillText(currentSelection, this.x, this.y);
@@ -59,7 +63,7 @@ export class Selector {
         ctx.stroke();
 
         ctx.font = `${this.smallerSize}px Himagsikan`;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.69)";
+        ctx.fillStyle = "rgba(79, 79, 79, 1)";
 
         ctx.textAlign = "right";
         let leftMessage = this.choices[0][(this.i + 1) % this.choices[0].length];

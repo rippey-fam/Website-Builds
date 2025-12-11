@@ -26,7 +26,7 @@ function clamp(x, min, max) {
 
 export class Player {
     colors = [
-        "hsl(0, 85%, 45%)", // Red
+        "hsl(0, 100%, 34%)", // Red
         "hsl(210, 90%, 40%)", // Blue
         "hsl(140, 70%, 35%)", // Green
         "hsl(25, 95%, 50%)", // Orange
@@ -53,11 +53,12 @@ export class Player {
         this.bButton = false;
         this.xButton = false;
         this.bullets = [];
-        this.pushBackForce = 1;
+        this.pushBackForce = options.pushBackForce === undefined ? true : options.pushBackForce;
         this.place = 0;
         this.friction = 0.015;
         this.isDead = false;
-        this.drawNozzle = options.drawNozzle || false;
+        this.drawNozzle = options.drawNozzle === undefined ? true : options.drawNozzle;
+        console.log(options.drawNozzle);
     }
     input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
@@ -196,7 +197,7 @@ export class Player {
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx) {
-        if (!this.drawNozzle) {
+        if (this.drawNozzle) {
             let cos = Math.cos(this.angle);
             let sin = Math.sin(this.angle);
             let cosPlus = Math.cos(this.angle + Math.PI / 2);

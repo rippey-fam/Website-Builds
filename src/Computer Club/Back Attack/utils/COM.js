@@ -22,7 +22,8 @@ function clampMagnitude({ x, y }, max, min) {
 export class COM extends Player {
     constructor(x, y, options = {}) {
         super(x, y, 0, options);
-        this.color = "hsl(0, 0%, 40%)";
+        this.rightStick = options.rightStick !== undefined ? options.rightStick : true;
+        this.color = "hsl(0, 0%, 55%)";
         /**
          * @type {"wandering"|"hunting"|"escaping"}
          */
@@ -46,8 +47,14 @@ export class COM extends Player {
     input(context) {
         switch (this.state) {
             case "wandering":
-                this.inputWander(context);
-                this.inputDumb(context);
+                if (this.isDead) {
+                    this.inputDumb(context);
+                } else {
+                    this.inputWander(context);
+                    if (this.rightStick) {
+                        this.inputDumb(context);
+                    }
+                }
                 break;
             case "hunting":
                 this.inputHunting(context);
@@ -199,16 +206,27 @@ export class COM extends Player {
             ctx.arc(this.wanderState.point.x, this.wanderState.point.y, 10, 0, 2 * Math.PI);
             ctx.fill();
         }
-
+        if (!this.rightStick) {
+            if (Math.hypot(gravitate.x, gravitate.y) < 0.1) {
+                this.inputDumb({ players, wall, bullets });
+                return;
+            }
+            let angle = Math.atan2(-gravitate.y, -gravitate.x);
+            this.angle = angle;
+            if (this.shoot.a === 0) {
+                this.shoot.a = this.shootFrameCooldown;
+            }
+        }
         super.input(
             { x: Math.cos(this.angle), y: Math.sin(this.angle) },
-            clampMagnitude(gravitate, 0.75, 0),
-            false,
+            this.rightStick ? clampMagnitude(gravitate, 0.75, 0) : { x: 0, y: 0 },
+            !this.rightStick ? this.shoot.a === this.shootFrameCooldown : false,
             false,
             false,
             null,
             bullets,
         );
+        if (!this.rightStick && this.shoot.a > 0) this.shoot.a--;
     }
     inputHunting({ players, wall, bullets }) {}
     inputEscaping({ players, wall, bullets }) {}
@@ -276,7 +294,7 @@ function getIntersection(ray, segment) {
     let T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
     let T1 = (s_px + s_dx * T2 - r_px) / r_dx;
 
-    // Must be within parametic whatevers for RAY/SEGMENT
+    // Must be within parametric what-ever for RAY/SEGMENT
     if (T1 < 0) return null;
     if (T2 < 0 || T2 > 1) return null;
 

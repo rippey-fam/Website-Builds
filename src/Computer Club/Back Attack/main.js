@@ -60,7 +60,7 @@ window.addEventListener("resize", resize);
 function onGamepadConnected(e) {
     if (gameState === "beginning") {
         let position = positions.pop();
-        players.push(new Player(position.x, position.y, players.length, { drawNozzle: powerup === "Sneaky-Aim" }));
+        players.push(new Player(position.x, position.y, players.length, playerOptions));
         indexes.push(e.gamepad.index);
         if (players.length === playerCount) window.removeEventListener("gamepadconnected", onGamepadConnected);
     } else window.removeEventListener("gamepadconnected", onGamepadConnected);
@@ -79,7 +79,7 @@ document.addEventListener(
     (e) => {
         if (e.key === " ") {
             let position = positions.pop();
-            players.push(new COM(position.x, position.y, { drawNozzle: powerup === "Sneaky-Aim" }));
+            players.push(new COM(position.x, position.y, playerOptions));
         }
     },
     { once: true },
@@ -87,16 +87,22 @@ document.addEventListener(
 
 document.addEventListener("click", (e) => {
     let canvasBounds = canvas.getBoundingClientRect();
-    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y, { drawNozzle: powerup === "Sneaky-Aim" }));
+    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y, playerOptions));
 });
 
 const params = new URLSearchParams(window.location.search);
-const level = params.get("level") || "1";
+const level = params.get("level") || "Level 1";
 /**
  * @type {"Plain Level"|"Golden Gun"|"No R Stick"|"Pushforward"|"Sneaky-Aim"|"Man-vs-Man"}
  */
 const powerup = params.get("powerup") || "Plain Level";
 console.log(`Level selected: ${level}, Powerup selected: ${powerup}`);
+
+const playerOptions = {
+    drawNozzle: powerup !== "Sneaky-Aim",
+    pushBackForce: powerup === "Pushforward" ? -1 : 1,
+    rightStick: powerup !== "No R Stick",
+};
 
 let players = [];
 let countdown = [];
@@ -106,16 +112,15 @@ let menuSelector = new Selector(
     canvas.width / 2,
     120,
     [
-        ["Plain Level", "Sneaky-Aim", "Man-vs-Man" /*"Golden Gun", "No R Stick", "Pushforward"*/],
-        ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"],
+        ["Plain Level", "Sneaky-Aim", "Man-vs-Man", "Pushforward", "No R Stick" /*, "Golden Gun"*/],
+        ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10"],
     ],
     ctx,
-    [powerup, "Level " + level],
+    [powerup, level],
 );
 
 const [playerSpacing, wallSpacing] = spacing(5, 90, canvas.width, canvas.height);
 
-const startOffset = 100;
 let positions = [
     playerSpacing.quarter.left[0],
     playerSpacing.quarter.left[1],
@@ -132,7 +137,7 @@ let positions = [
  */
 let wall = new Wall();
 switch (level) {
-    case "1":
+    case "Level 1":
         wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
             .V(wallSpacing.side.top)
             .H(wallSpacing.side.right)
@@ -161,7 +166,7 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "2":
+    case "Level 2":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
             .H(wallSpacing.side.right)
             .V(wallSpacing.side.bottom)
@@ -180,7 +185,7 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "3":
+    case "Level 3":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
             .H(wallSpacing.box.left)
             .V(wallSpacing.box.top)
@@ -207,7 +212,7 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "4":
+    case "Level 4":
         wall.addPath(wallSpacing.side.left, wallSpacing.box.top)
             .H(wallSpacing.box.left)
             .V(wallSpacing.side.top)
@@ -232,7 +237,7 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "5":
+    case "Level 5":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
             .V(wallSpacing.side.bottom)
             .addPath(wallSpacing.side.right, wallSpacing.side.top)
@@ -249,7 +254,7 @@ switch (level) {
             playerSpacing.third.bottom[1],
         ].sort(() => Math.random() - 0.5);
         break;
-    case "6":
+    case "Level 6":
         wall.addPath(wallSpacing.center, wallSpacing.side.top)
             .V(wallSpacing.side.bottom)
             .addPath(wallSpacing.side.left, wallSpacing.middle)
@@ -265,7 +270,7 @@ switch (level) {
             playerSpacing.quarter.right[3],
         ].sort(() => Math.random() - 0.5);
         break;
-    case "7":
+    case "Level 7":
         wall.addPath(wallSpacing.center, wallSpacing.box.top)
             .V(wallSpacing.box.bottom)
             .addPath(wallSpacing.box.left, wallSpacing.middle)
@@ -282,7 +287,7 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "8":
+    case "Level 8":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
             .H(wallSpacing.side.right)
             .V(wallSpacing.side.bottom)
@@ -308,15 +313,31 @@ switch (level) {
         ].sort(() => Math.random() - 0.5);
         break;
 
-    case "9":
+    case "Level 9":
         wall.addPath(wallSpacing.side.left, wallSpacing.side.top)
             .V(wallSpacing.side.bottom)
-            .addPath(wallSpacing.side.right, wallSpacing.side.top)
-            .V(wallSpacing.side.bottom);
+            .H(wallSpacing.side.right)
+            .V(wallSpacing.side.top)
+            .H(wallSpacing.side.left);
         wall.addPath(wallSpacing.box.left, wallSpacing.box.top)
             .V(wallSpacing.box.bottom)
-            .addPath(wallSpacing.box.right, wallSpacing.box.top)
-            .V(wallSpacing.box.bottom);
+            .H(wallSpacing.side.left)
+            .addPath(wallSpacing.box.right, wallSpacing.box.bottom)
+            .V(wallSpacing.box.top)
+            .H(wallSpacing.side.right);
+        positions = [
+            playerSpacing.third.left[0],
+            playerSpacing.third.left[1],
+            playerSpacing.third.left[2],
+            playerSpacing.third.right[0],
+            playerSpacing.third.right[1],
+            playerSpacing.third.right[2],
+            playerSpacing.third.top[1],
+            playerSpacing.third.bottom[1],
+        ].sort(() => Math.random() - 0.5);
+        break;
+    case "Level 10":
+        wall.addPath(wallSpacing.side.left, wallSpacing.side.bottom).V(wallSpacing.side.top).H(wallSpacing.side.right);
         positions = [
             playerSpacing.third.left[0],
             playerSpacing.third.left[1],
@@ -371,45 +392,45 @@ function game() {
             })(delay);
         }
         queue
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "3",
-                    textStyle: { size: 100, font: "Himagsikan" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "2",
-                    textStyle: { size: 100, font: "Himagsikan" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "1",
-                    textStyle: { size: 100, font: "Himagsikan" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "3",
+            //         textStyle: { size: 100, font: "Himagsikan" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "2",
+            //         textStyle: { size: 100, font: "Himagsikan" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
+            // .next(
+            //     drawText({
+            //         time: 1000,
+            //         text: "1",
+            //         textStyle: { size: 100, font: "Himagsikan" },
+            //         color: { r: 255, g: 0, b: 0 },
+            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
+            //         equation: "easeIn",
+            //         instances: countdown,
+            //     }),
+            // )
             .next(goAndStart);
         if (powerup !== "Man-vs-Man") {
             let currentPlayerLen = players.length;
             for (let i = 0; i < playerCount - currentPlayerLen; i++) {
                 let position = positions.pop();
-                players.push(new COM(position.x, position.y, { drawNozzle: powerup === "Sneaky-Aim" }));
+                players.push(new COM(position.x, position.y, playerOptions));
             }
         }
     }
@@ -426,7 +447,9 @@ function game() {
                     if (gameState !== "paused") {
                         player.input(
                             { x: mapping.leftX, y: mapping.leftY },
-                            gameState === "starting" ? { x: 0, y: 0 } : { x: mapping.rightX, y: mapping.rightY },
+                            gameState === "starting" || powerup === "No R Stick"
+                                ? { x: 0, y: 0 }
+                                : { x: mapping.rightX, y: mapping.rightY },
                             gameState === "starting" ? 0 : mapping.a,
                             gameState === "starting" ? 0 : mapping.x,
                             gameState === "starting" ? 0 : mapping.b,
@@ -440,13 +463,16 @@ function game() {
                     } else if (gameState === "paused") {
                         if (indexes[i - skipped] === pausedPlayerID) {
                             let [powerup, level] = menuSelector.input(
-                                { x: mapping.right - mapping.left, y: mapping.up - mapping.down },
+                                {
+                                    x: (mapping.right || mapping.leftX > 0.7) - (mapping.left || mapping.leftX < -0.7),
+                                    y: (mapping.up || mapping.leftY > 0.7) - (mapping.down || mapping.leftY < -0.7),
+                                },
                                 mapping.a,
                             ) || [null, null];
                             if (powerup !== null) {
                                 console.log(`Selection was made: ${powerup}, ${level}`);
                                 window.location.href = `../Back%20Attack/index.html?powerup=${encodeURIComponent(powerup)}&level=${encodeURIComponent(
-                                    level.at(-1),
+                                    level,
                                 )}`;
                             }
                             if (mapping.b) gameState = "playing";
