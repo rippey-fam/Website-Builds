@@ -393,39 +393,39 @@ function game() {
             })(delay);
         }
         queue
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "3",
-            //         textStyle: { size: 100, font: "Himagsikan" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "2",
-            //         textStyle: { size: 100, font: "Himagsikan" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
-            // .next(
-            //     drawText({
-            //         time: 1000,
-            //         text: "1",
-            //         textStyle: { size: 100, font: "Himagsikan" },
-            //         color: { r: 255, g: 0, b: 0 },
-            //         p: { x: canvas.width / 2, y: canvas.height / 2 },
-            //         equation: "easeIn",
-            //         instances: countdown,
-            //     }),
-            // )
+             .next(
+                 drawText({
+                     time: 1000,
+                    text: "3",
+                    textStyle: { size: 100, font: "Himagsikan" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "2",
+                    textStyle: { size: 100, font: "Himagsikan" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
+            .next(
+                drawText({
+                    time: 1000,
+                    text: "1",
+                    textStyle: { size: 100, font: "Himagsikan" },
+                    color: { r: 255, g: 0, b: 0 },
+                    p: { x: canvas.width / 2, y: canvas.height / 2 },
+                    equation: "easeIn",
+                    instances: countdown,
+                }),
+            )
             .next(goAndStart);
         if (powerup !== "Man-vs-Man") {
             let currentPlayerLen = players.length;
