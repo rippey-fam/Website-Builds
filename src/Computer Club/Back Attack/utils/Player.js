@@ -1,6 +1,14 @@
 import { Bullet } from "./Bullet.js";
 import { COM } from "./COM.js";
 
+function easeOutCubic(x) {
+    return 1 - Math.pow(1 - x, 3);
+}
+
+function easeInCubic(x) {
+    return x * x * x;
+}
+
 let point = (x, y) => {
     return { x, y };
 };
@@ -35,6 +43,7 @@ export class Player {
         "hsl(45, 90%, 45%)", // Gold/Mustard
         "hsl(280, 50%, 30%)", // Deep Violet
     ];
+    gold = "hsl(50, 97%, 43%)";
     constructor(x, y, playerNumber, options = {}) {
         this.x = x;
         this.y = y;
@@ -58,7 +67,11 @@ export class Player {
         this.friction = 0.015;
         this.isDead = false;
         this.drawNozzle = options.drawNozzle === undefined ? true : options.drawNozzle;
+        this.goldenGun = options.goldenGun === undefined ? false : options.goldenGun;
         console.log(options.drawNozzle);
+        this.goldenGunCharge = 1000;
+        this.goldenGunCurrentHold = 0;
+        this.goldenGunLastTime = null;
     }
     input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
@@ -101,31 +114,73 @@ export class Player {
                 strongMagnitude: 1.0,
             });
         }
+        if (this.goldenGun) {
+            if (xButton) {
+                if (!this.goldenGunLastTime) {
+                    this.goldenGunLastTime = Date.now();
+                } else {
+                    let now = Date.now();
+                    this.goldenGunCurrentHold += now - this.goldenGunLastTime;
+                    this.goldenGunLastTime = now;
+                }
+            }
+        }
         if (!xButton && this.xButton) {
-            bullets.push(
-                new Bullet({
-                    x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
-                    y: this.y + Math.sin(this.angle) * (this.radius + this.h + 10),
-                    angle: this.angle,
-                    speed: 7,
-                    w: 7,
-                    h: 15,
-                    round: true,
-                    color: this.color,
-                    force: 10,
-                    parent: this,
-                    width: canvas.width,
-                    height: canvas.height,
-                }),
-            );
-            this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 3;
-            this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 3;
-            vibration?.playEffect("dual-rumble", {
-                startDelay: 0,
-                duration: 200,
-                weakMagnitude: 1.0,
-                strongMagnitude: 1.0,
-            });
+            if (this.goldenGun) {
+                if (this.goldenGunCurrentHold > this.goldenGunCharge) {
+                    bullets.push(
+                        new Bullet({
+                            x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
+                            y: this.y + Math.sin(this.angle) * (this.radius + this.h + 10),
+                            angle: this.angle,
+                            speed: 15,
+                            w: 7,
+                            h: 15,
+                            round: true,
+                            color: this.gold,
+                            force: 50,
+                            parent: this,
+                            width: canvas.width,
+                            height: canvas.height,
+                        }),
+                    );
+                    this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 7;
+                    this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 7;
+                    vibration?.playEffect("dual-rumble", {
+                        startDelay: 0,
+                        duration: 200,
+                        weakMagnitude: 1.0,
+                        strongMagnitude: 1.0,
+                    });
+                }
+                this.goldenGunLastTime = null;
+                this.goldenGunCurrentHold = 0;
+            } else {
+                bullets.push(
+                    new Bullet({
+                        x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
+                        y: this.y + Math.sin(this.angle) * (this.radius + this.h + 10),
+                        angle: this.angle,
+                        speed: 7,
+                        w: 7,
+                        h: 15,
+                        round: true,
+                        color: this.color,
+                        force: 10,
+                        parent: this,
+                        width: canvas.width,
+                        height: canvas.height,
+                    }),
+                );
+                this.velocity.x -= Math.cos(this.angle) * this.pushBackForce * 3;
+                this.velocity.y -= Math.sin(this.angle) * this.pushBackForce * 3;
+                vibration?.playEffect("dual-rumble", {
+                    startDelay: 0,
+                    duration: 200,
+                    weakMagnitude: 1.0,
+                    strongMagnitude: 1.0,
+                });
+            }
         }
         if (!bButton && this.bButton) {
             bullets.push(
@@ -239,7 +294,15 @@ export class Player {
             ctx.stroke();
             ctx.fill();
 
-            ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
+            if (this.goldenGun) {
+                ctx.fillStyle =
+                    this.gold.slice(0, 3) +
+                    "a(" +
+                    this.gold.slice(4, -1) +
+                    `, ${clamp(easeInCubic(this.goldenGunCurrentHold / this.goldenGunCharge), 0, 1)})`;
+            } else {
+                ctx.fillStyle = this.color.slice(0, 3) + "a(" + this.color.slice(4, -1) + ", 0.3)";
+            }
             ctx.lineCap = "round";
             ctx.beginPath();
             ctx.moveTo(ax, ay);

@@ -102,6 +102,7 @@ const playerOptions = {
     drawNozzle: powerup !== "Sneaky-Aim",
     pushBackForce: powerup === "Pushforward" ? -1 : 1,
     rightStick: powerup !== "No R Stick",
+    goldenGun: powerup === "Golden Gun",
 };
 
 let players = [];
@@ -112,7 +113,7 @@ let menuSelector = new Selector(
     canvas.width / 2,
     120,
     [
-        ["Plain Level", "Sneaky-Aim", "Man-vs-Man", "Pushforward", "No R Stick" /*, "Golden Gun"*/],
+        ["Plain Level", "Sneaky-Aim", "Man-vs-Man", "Pushforward", "No R Stick", "Golden Gun"],
         ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10"],
     ],
     ctx,

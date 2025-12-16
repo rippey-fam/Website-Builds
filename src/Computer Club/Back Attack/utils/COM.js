@@ -160,7 +160,12 @@ export class COM extends Player {
                 }
             };
             let point = findNewPoint();
-            this.wanderState.point = point;
+            if (!this.wanderState.point) {
+                this.wanderState.point = { x: 0, y: 0 };
+                this.wanderState.findNewPoint = true;
+            } else {
+                this.wanderState.point = point;
+            }
             this.wanderState.timeout = setTimeout(() => {
                 this.wanderState.shouldChange = true;
             }, 7000);
