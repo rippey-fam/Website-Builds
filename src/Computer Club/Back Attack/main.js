@@ -5,6 +5,27 @@ import mapController from "./utils/controllerMapping.js";
 import { Queue, drawText } from "../../animationLib.js";
 import { Selector } from "./utils/Selector.js";
 import spacing from "./utils/spacing.js";
+import { soundFX } from "./utils/sfx.js";
+
+/**
+ * @type {HTMLCanvasElement}
+ */
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+function resize() {
+    let windowRatio = window.innerHeight / window.innerWidth;
+    let canvasRatio = canvas.height / canvas.width;
+    let windowTooNarrow = windowRatio > canvasRatio;
+    if (windowTooNarrow) {
+        canvas.style.width = `${window.innerWidth * 0.95}px`;
+        canvas.style.height = "auto";
+    } else {
+        canvas.style.width = "auto";
+        canvas.style.height = `${window.innerHeight * 0.95}px`;
+    }
+}
+resize();
+window.addEventListener("resize", resize);
 
 let f = new FontFace("Himagsikan", "url(./fonts/himagsikan.ttf)");
 let interval;
@@ -27,35 +48,11 @@ f.load().then(function (font) {
         ctx.textAlign = "left";
         ctx.font = "30px Himagsikan";
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillText(
-            message + (count % 4 === 1 ? "." : count % 4 === 2 ? ".." : count % 4 === 3 ? "..." : ""),
-            canvas.width / 2 - length / 2,
-            canvas.height / 2,
-        );
+        ctx.fillText(message + ".".repeat(count % 4), canvas.width / 2 - length / 2, canvas.height / 2);
         ctx.fill();
         count++;
     }, 200);
 });
-
-/**
- * @type {HTMLCanvasElement}
- */
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
-function resize() {
-    let windowRatio = window.innerHeight / window.innerWidth;
-    let canvasRatio = canvas.height / canvas.width;
-    let windowTooNarrow = windowRatio > canvasRatio;
-    if (windowTooNarrow) {
-        canvas.style.width = `${window.innerWidth * 0.95}px`;
-        canvas.style.height = "auto";
-    } else {
-        canvas.style.width = "auto";
-        canvas.style.height = `${window.innerHeight * 0.95}px`;
-    }
-}
-resize();
-window.addEventListener("resize", resize);
 
 function onGamepadConnected(e) {
     if (gameState === "beginning") {
@@ -90,8 +87,21 @@ document.addEventListener("click", (e) => {
     players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y, playerOptions));
 });
 
+let allLevels = [
+    "Level 1",
+    "Level 2",
+    "Level 3",
+    "Level 4",
+    "Level 5",
+    "Level 6",
+    "Level 7",
+    "Level 8",
+    "Level 9",
+    "Level 10",
+];
 const params = new URLSearchParams(window.location.search);
-const level = params.get("level") || "Level 1";
+let levelParam = params.get("level") || "RANDOM";
+const level = levelParam === "RANDOM" ? allLevels[Math.floor(Math.random() * allLevels.length)] : levelParam;
 /**
  * @type {"Plain Level"|"Golden Gun"|"No R Stick"|"Pushforward"|"Sneaky-Aim"|"Man-vs-Man"}
  */
@@ -114,7 +124,7 @@ let menuSelector = new Selector(
     120,
     [
         ["Plain Level", "Sneaky-Aim", "Man-vs-Man", "Pushforward", "No R Stick", "Golden Gun"],
-        ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10"],
+        [...allLevels, "RANDOM"],
     ],
     ctx,
     [powerup, level],
@@ -382,7 +392,8 @@ function game() {
         gameState = "starting";
         function goAndStart(delay) {
             setTimeout(() => (gameState = "playing"), delay);
-            drawText({
+            setTimeout(() => soundFX.endCountdown(), delay);
+            return drawText({
                 time: 1000,
                 text: "GO!",
                 textStyle: { size: 100, font: "Himagsikan" },
@@ -392,41 +403,21 @@ function game() {
                 instances: countdown,
             })(delay);
         }
-        queue
-             .next(
-                 drawText({
-                     time: 1000,
-                    text: "3",
-                    textStyle: { size: 100, font: "Himagsikan" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
+        function showNumberWithSound(number) {
+            return function (delay) {
+                setTimeout(() => soundFX.countdown(), delay);
+                return drawText({
                     time: 1000,
-                    text: "2",
+                    text: number,
                     textStyle: { size: 100, font: "Himagsikan" },
                     color: { r: 255, g: 0, b: 0 },
                     p: { x: canvas.width / 2, y: canvas.height / 2 },
                     equation: "easeIn",
                     instances: countdown,
-                }),
-            )
-            .next(
-                drawText({
-                    time: 1000,
-                    text: "1",
-                    textStyle: { size: 100, font: "Himagsikan" },
-                    color: { r: 255, g: 0, b: 0 },
-                    p: { x: canvas.width / 2, y: canvas.height / 2 },
-                    equation: "easeIn",
-                    instances: countdown,
-                }),
-            )
-            .next(goAndStart);
+                })(delay);
+            };
+        }
+        queue.next(showNumberWithSound(3)).next(showNumberWithSound(2)).next(showNumberWithSound(1)).next(goAndStart);
         if (powerup !== "Man-vs-Man") {
             let currentPlayerLen = players.length;
             for (let i = 0; i < playerCount - currentPlayerLen; i++) {
@@ -458,6 +449,7 @@ function game() {
                             bullets,
                         );
                         if (mapping.start && gameState !== "starting") {
+                            soundFX.pause();
                             gameState = "paused";
                             pausedPlayerID = indexes[i - skipped];
                         }
@@ -471,12 +463,13 @@ function game() {
                                 mapping.a,
                             ) || [null, null];
                             if (powerup !== null) {
-                                console.log(`Selection was made: ${powerup}, ${level}`);
-                                window.location.href = `../Back%20Attack/index.html?powerup=${encodeURIComponent(powerup)}&level=${encodeURIComponent(
-                                    level,
-                                )}`;
+                                window.location.href = `../Back%20Attack/index.html?powerup=${encodeURIComponent(powerup)}&level=${encodeURIComponent(level)}`;
                             }
-                            if (mapping.b) gameState = "playing";
+                            if (mapping.b) {
+                                soundFX.unpause();
+                                players[i - skipped].bButton = true;
+                                gameState = "playing";
+                            }
                         }
                     }
                 } else {

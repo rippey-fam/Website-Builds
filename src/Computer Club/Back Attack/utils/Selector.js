@@ -1,3 +1,5 @@
+import { soundFX } from "./sfx.js";
+
 export class Selector {
     constructor(x, y, choices, ctx, defaultChoices = [null, null]) {
         this.x = x;
@@ -31,16 +33,19 @@ export class Selector {
     }
     input(axis, select) {
         if (Math.abs(this.prevAxis.x) && axis.x === 0) {
+            soundFX.menu();
             this.i -= this.prevAxis.x;
             this.i %= this.choices[0].length;
             if (this.i < 0) this.i += this.choices[0].length;
         }
         if (Math.abs(this.prevAxis.y) && axis.y === 0) {
+            soundFX.menu();
             this.j -= this.prevAxis.y;
             this.j %= this.choices[1].length;
             if (this.j < 0) this.j += this.choices[1].length;
         }
         if (select && !this.prevSelect) {
+            soundFX.menu();
             return [this.choices[0][this.i], this.choices[1][this.j]];
         }
         this.prevAxis = axis;

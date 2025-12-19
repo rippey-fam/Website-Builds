@@ -1,5 +1,5 @@
 import { Bullet } from "./Bullet.js";
-import { COM } from "./COM.js";
+import { soundFX } from "./sfx.js";
 
 function easeOutCubic(x) {
     return 1 - Math.pow(1 - x, 3);
@@ -33,6 +33,10 @@ function clamp(x, min, max) {
 }
 
 export class Player {
+    types = {
+        player: 123,
+        COM: 456,
+    };
     colors = [
         "hsl(0, 100%, 34%)", // Red
         "hsl(210, 90%, 40%)", // Blue
@@ -72,6 +76,7 @@ export class Player {
         this.goldenGunCharge = 1000;
         this.goldenGunCurrentHold = 0;
         this.goldenGunLastTime = null;
+        this.myType = this.types.player;
     }
     input(leftJoy, rightJoy, aButton, xButton, bButton, vibration, bullets) {
         leftJoy = deadzone(leftJoy, 0.9);
@@ -88,7 +93,12 @@ export class Player {
         this.velocity.x += rightJoy.x * this.speed * scalarX;
         this.velocity.y += rightJoy.y * this.speed * scalarY;
 
-        if (!aButton && this.aButton) {
+        if (aButton && !this.aButton) {
+            if (this.myType === this.types.player) {
+                soundFX.normalShot();
+            } else {
+                soundFX.COMNormalShot();
+            }
             bullets.push(
                 new Bullet({
                     x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
@@ -124,9 +134,7 @@ export class Player {
                     this.goldenGunLastTime = now;
                 }
             }
-        }
-        if (!xButton && this.xButton) {
-            if (this.goldenGun) {
+            if (!xButton && this.xButton) {
                 if (this.goldenGunCurrentHold > this.goldenGunCharge) {
                     bullets.push(
                         new Bullet({
@@ -152,10 +160,17 @@ export class Player {
                         weakMagnitude: 1.0,
                         strongMagnitude: 1.0,
                     });
+                    if (this.myType === this.types.player) {
+                        soundFX.bigShot();
+                    } else {
+                        soundFX.COMBigShot();
+                    }
                 }
                 this.goldenGunLastTime = null;
                 this.goldenGunCurrentHold = 0;
-            } else {
+            }
+        } else {
+            if (xButton && !this.xButton) {
                 bullets.push(
                     new Bullet({
                         x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
@@ -180,9 +195,14 @@ export class Player {
                     weakMagnitude: 1.0,
                     strongMagnitude: 1.0,
                 });
+                if (this.myType === this.types.player) {
+                    soundFX.bigShot();
+                } else {
+                    soundFX.COMBigShot();
+                }
             }
         }
-        if (!bButton && this.bButton) {
+        if (bButton && !this.bButton) {
             bullets.push(
                 new Bullet({
                     x: this.x + Math.cos(this.angle) * (this.radius + this.h + 10),
@@ -208,6 +228,11 @@ export class Player {
                 weakMagnitude: 1.0,
                 strongMagnitude: 1.0,
             });
+            if (this.myType === this.types.player) {
+                soundFX.smallShot();
+            } else {
+                soundFX.COMSmallShot();
+            }
         }
         this.xButton = xButton;
         this.bButton = bButton;
@@ -234,7 +259,12 @@ export class Player {
             this.y = -this.radius;
         }
 
-        if (wall.check(this.x, this.y, this.radius)) this.isDead = true;
+        if (!this.isDead) {
+            if (wall.check(this.x, this.y, this.radius)) {
+                this.isDead = true;
+                if (this.place !== 1) soundFX.die();
+            }
+        }
 
         allBullets.forEach((bullet) => {
             let dx = this.x - bullet.x;

@@ -22,6 +22,7 @@ function clampMagnitude({ x, y }, max, min) {
 export class COM extends Player {
     constructor(x, y, options = {}) {
         super(x, y, 0, options);
+        this.myType = this.types.COM;
         this.rightStick = options.rightStick !== undefined ? options.rightStick : true;
         this.color = "hsl(0, 0%, 55%)";
         /**
