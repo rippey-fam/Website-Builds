@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Audio Cloner</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="settings-container">
+                Hello, these are some settings
+                <br />
+                Do you like them?
+            </div>
+            <div class="drag-n-drop">
+                <div>mp3, wav</div>
+                <br />
+                <label>
+                    +
+                    <input id="file-input" type="file" style="display: none" accept=".mp3,.wav" />
+                </label>
+            </div>
+        </div>
+        <button id="play-button">Play ▶︎</button>
+        <audio id="audio" src="samples/threeNotes.mp3" type="audio/mpeg" controls></audio>
+        <script src="main.js"></script>
+    </body>
+</html>
