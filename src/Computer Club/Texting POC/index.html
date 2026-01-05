@@ -17,6 +17,28 @@
                 display: flex;
                 gap: 10px;
             }
+            #popup {
+                position: absolute;
+                width: 100vw;
+                height: 100vh;
+                left: 0px;
+                top: 0px;
+                background-color: #000000c1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #popup > div {
+                width: 20vw;
+                min-width: 350px;
+                background-color: rgb(212, 212, 212);
+                border-radius: 10px;
+                padding: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
             p {
                 margin: 0px;
             }
@@ -37,6 +59,7 @@
                 font-family: Arial, sans-serif;
                 font-size: 14px;
                 padding: 5px;
+                resize: none;
             }
 
             button {
@@ -55,13 +78,18 @@
         </style>
     </head>
     <body>
+        <div id="popup">
+            <div>
+                <textarea placeholder="Put your name here"></textarea>
+                <button>Enter</button>
+            </div>
+        </div>
         <div id="wrapper">
             <p id="group-chat"></p>
-            <textarea id="m-textarea" placeholder="Put some text here"></textarea>
+            <textarea id="send-textarea" placeholder="Put some text here"></textarea>
             <br />
             <div id="button-wrapper">
-                <button id="m-button">Send as Matthew</button>
-                <button id="s-button">Send as Scott</button>
+                <button id="send-button">Send</button>
             </div>
             <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore-compat.js"></script>
