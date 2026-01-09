@@ -14,12 +14,16 @@
             const myLon = -116.4530197170302;
 
             const getWeather = async (lat, lon, APIkey) => {
-                const response = await fetch(
-                    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APIkey}`,
-                );
-                const parsedResponse = await response.json();
-                console.log(parsedResponse);
-                alert(parsedResponse);
+                try{
+                    const response = await fetch(
+                        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APIkey}`,
+                    );
+                    const parsedResponse = await response.json();
+                    console.log(parsedResponse);
+                    alert(parsedResponse);
+                } catch(err) {
+                    alert(err)
+                }
             };
             getWeather(myLat, myLon, myAPIkey);
         </script>
