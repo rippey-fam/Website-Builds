@@ -20,9 +20,9 @@
                     );
                     const parsedResponse = await response.json();
                     console.log(parsedResponse);
-                    alert(parsedResponse);
+                    alert(JSON.stringify(parsedResponse));
                 } catch(err) {
-                    alert(err)
+                    alert(JSON.stringify(err));
                 }
             };
             getWeather(myLat, myLon, myAPIkey);
