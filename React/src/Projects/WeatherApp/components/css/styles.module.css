@@ -1,0 +1,8 @@
+.currentWeather {
+    /* Centered Items with flexbox*/
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+}
