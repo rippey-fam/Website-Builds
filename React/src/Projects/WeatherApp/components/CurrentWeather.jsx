@@ -5,7 +5,7 @@ export default function CurrentWeather({ weather }) {
             <div>
                 {weather?.name}
                 <br />
-                {new Date(weather?.dt + weather?.timezone).toDateString()}
+                {new Date(weather?.dt * 1000 + weather?.timezone).toDateString()}
             </div>
             <div>
                 {weather ? <img src={"./images/" + weather?.weather[0].icon + ".png"} /> : ""} <br />{" "}
