@@ -1,3 +1,10 @@
+import { useEffect, useState } from "react";
+
 export default function CurrentTime() {
-    return <div>Current Time Component</div>;
+    const [time, setTime] = useState(new Date());
+    useEffect(() => {
+        const timeout = setTimeout(() => setTime(new Date()), 1000);
+        return () => clearTimeout(timeout);
+    });
+    return <div>{time.toTimeString()}</div>;
 }

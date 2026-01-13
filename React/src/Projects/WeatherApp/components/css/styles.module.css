@@ -6,3 +6,12 @@
     align-items: center;
     margin-bottom: 60px;
 }
+
+.currentWeather > * {
+    width: 33.33%;
+}
+.currentWeather img {
+    --size: 150px;
+    width: var(--size);
+    height: var(--size);
+}

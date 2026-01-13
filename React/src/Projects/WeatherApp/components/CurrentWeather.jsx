@@ -3,7 +3,7 @@ export default function CurrentWeather({ weather }) {
     return (
         <div className={styles.currentWeather}>
             <div>
-                {weather?.name}
+                <span style={{ font: "bold 48px Arial" }}>{weather?.name}</span>
                 <br />
                 {new Date(weather?.dt * 1000 + weather?.timezone).toDateString()}
             </div>
