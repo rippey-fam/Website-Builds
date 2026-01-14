@@ -80,8 +80,11 @@ export default function App() {
     return (
         <>
             <CurrentTime />
+            <br />
             <CurrentWeather weather={weatherData.data} />
+            <br />
             <WeeklyWeather weather={daily} />
+            <br />
             <HourlyWeather weather={hourly} />
         </>
     );
