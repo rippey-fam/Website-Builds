@@ -1,14 +1,20 @@
-import { useTodoList } from "./useTodoList";
+import { useTodoListContext } from "./useTodoList";
 export default function TodoList() {
-    const { list, updateItem } = useTodoList();
+    const { list, updateItem } = useTodoListContext();
     let lastChecked = false;
     return (
         <ul>
             {list
-                .sort((a, b) => a.complete - b.complete)
+                .sort((a, b) => (a.complete && b.complete ? 0 : a.complete ? 1 : -1))
                 .map((item, key) => {
+                    let addHR = false;
+                    if (lastChecked !== item.complete) {
+                        lastChecked = item.complete;
+                        addHR = true;
+                    }
                     return (
                         <li key={key}>
+                            {addHR && <hr />}
                             <label
                                 style={{
                                     userSelect: "none",

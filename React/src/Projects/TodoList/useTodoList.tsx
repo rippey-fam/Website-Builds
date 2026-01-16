@@ -1,6 +1,18 @@
-import { useState } from "react";
+import { createContext, PropsWithChildren, useContext, useState } from "react";
 
-export function useTodoList() {
+const ctx = createContext<TodoState | null>(null);
+
+export function TodoProvider({ children }: PropsWithChildren) {
+    const state = useTodoList();
+    return <ctx.Provider value={state}>{children}</ctx.Provider>;
+}
+
+export function useTodoListContext() {
+    const state = useContext(ctx);
+    if (!state) throw new Error("useTodoListContext must be used within a TodoProvider");
+    return state;
+}
+function useTodoList() {
     const [list, setList] = useState<Array<TodoItem>>(() => startState);
     function updateItem(item: TodoItem, newVals: Partial<TodoItem>) {
         setList(
@@ -15,7 +27,7 @@ export function useTodoList() {
     }
     return { list, updateItem };
 }
-export const startState = [
+const startState = [
     {
         title: "Buy groceries",
         complete: false,
@@ -122,3 +134,4 @@ export type TodoItem = {
     complete: boolean;
     id: number;
 };
+export type TodoState = ReturnType<typeof useTodoList>;
