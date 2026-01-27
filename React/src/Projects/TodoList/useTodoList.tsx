@@ -25,7 +25,10 @@ function useTodoList() {
             }),
         );
     }
-    return { list, updateItem };
+    function addItem(item: TodoItem) {
+        setList([...list, item]);
+    }
+    return { list, updateItem, addItem };
 }
 const startState = [
     {
