@@ -1,5 +1,5 @@
 import DayWeather from "./DayWeather";
-import styles from "./css/styles.module.css";
+import styles from "../css/styles.module.css";
 export default function WeeklyWeather({ weather }) {
     return (
         <div className={styles.weeklyWeather}>
