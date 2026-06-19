@@ -32,14 +32,12 @@ let interval;
 
 f.load().then(function (font) {
     // Ready to use the font in a canvas context
-    console.log("font ready");
 
     // Add font on the html page
     document.fonts.add(font);
     ctx.font = "30px Himagsikan";
     let message = "Connect Your Controller OR Press Space";
     let length = ctx.measureText(message).width;
-    console.log(length);
     ctx.textAlign = "left";
     ctx.fillText(message, canvas.width / 2 - length / 2, canvas.height / 2);
     let count = 0;
@@ -54,14 +52,20 @@ f.load().then(function (font) {
     }, 200);
 });
 
+/**
+ * @type {"gamepad" | "pc"}
+ */
+let gameType = "pc";
+
 function onGamepadConnected(e) {
+    gameType = "gamepad";
+    console.log("Gamepad connected:", e.gamepad);
     if (gameState === "beginning") {
         let position = positions.pop();
         players.push(new Player(position.x, position.y, players.length, playerOptions));
         indexes.push(e.gamepad.index);
         if (players.length === playerCount) window.removeEventListener("gamepadconnected", onGamepadConnected);
     } else window.removeEventListener("gamepadconnected", onGamepadConnected);
-    console.log(e.gamepad);
 }
 window.addEventListener("gamepadconnected", onGamepadConnected);
 
@@ -70,21 +74,23 @@ window.addEventListener("gamepaddisconnected", (e) => {
     indexes.splice(disconnectedIndex, 1);
     players.splice(disconnectedIndex, 1);
 });
+const keyState = {};
+document.addEventListener("keydown", (e) => {
+    keyState[e.key] = true;
+    if (keyState[" "] && gameState === "beginning") {
+        let position = positions.pop();
+        players.push(new Player(position.x, position.y, players.length, playerOptions));
+    }
+});
+document.addEventListener("keyup", (e) => {
+    keyState[e.key] = false;
+});
 
-document.addEventListener(
-    "keypress",
-    (e) => {
-        if (e.key === " ") {
-            let position = positions.pop();
-            players.push(new COM(position.x, position.y, playerOptions));
-        }
-    },
-    { once: true },
-);
-
-document.addEventListener("click", (e) => {
-    let canvasBounds = canvas.getBoundingClientRect();
-    players.push(new COM(e.x - canvasBounds.x, e.y - canvasBounds.y, playerOptions));
+const mouse = { x: 0, y: 0 };
+document.addEventListener("mousemove", (e) => {
+    const boundingRect = canvas.getBoundingClientRect();
+    mouse.x = (e.clientX - boundingRect.left) * (canvas.width / boundingRect.width);
+    mouse.y = (e.clientY - boundingRect.top) * (canvas.height / boundingRect.height);
 });
 
 let allLevels = [
@@ -433,9 +439,32 @@ function game() {
             let player = players[i];
             if (gameState !== "cutscene") {
                 if (!(player instanceof COM)) {
-                    let gp = navigator.getGamepads()[indexes[i - skipped]];
-                    if (!gp) continue;
-                    let mapping = mapController(gp);
+                    let gp;
+                    let mapping;
+                    if (gameType === "gamepad") {
+                        gp = navigator.getGamepads()[indexes[i - skipped]];
+                        if (!gp) continue;
+                        mapping = mapController(gp);
+                    } else {
+                        // mouse to aim. arrows to move. click to shoot. right click for big shot. space for pause.
+
+                        mapping = {
+                            rightX: (keyState["ArrowRight"] ?? 0) - (keyState["ArrowLeft"] ?? 0),
+                            rightY: (keyState["ArrowDown"] ?? 0) - (keyState["ArrowUp"] ?? 0),
+                            leftX:
+                                gameState === "paused"
+                                    ? (keyState["ArrowRight"] ?? 0) - (keyState["ArrowLeft"] ?? 0)
+                                    : mouse.x - player.x,
+                            leftY:
+                                gameState === "paused"
+                                    ? (keyState["ArrowDown"] ?? 0) - (keyState["ArrowUp"] ?? 0)
+                                    : mouse.y - player.y,
+                            a: keyState["Shift"] || keyState["Enter"] || false,
+                            x: keyState["Control"] || false,
+                            b: keyState["Escape"] || false,
+                            start: keyState[" "] || false,
+                        };
+                    }
                     if (gameState !== "paused") {
                         player.input(
                             { x: mapping.leftX, y: mapping.leftY },
@@ -445,7 +474,7 @@ function game() {
                             gameState === "starting" ? 0 : mapping.a,
                             gameState === "starting" ? 0 : mapping.x,
                             gameState === "starting" ? 0 : mapping.b,
-                            gp.vibrationActuator,
+                            gp?.vibrationActuator,
                             bullets,
                         );
                         if (mapping.start && gameState !== "starting") {
@@ -514,6 +543,11 @@ function game() {
         players.forEach((player) => player.draw(ctx));
         bullets.forEach((bullet) => bullet.draw(ctx));
         countdown.forEach((text) => text.draw(ctx));
+        // draw dot at mouse position for testing
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 5, 0, Math.PI * 2);
+        ctx.fill();
         if (gameState === "paused") menuSelector.draw(ctx);
     }
     requestAnimationFrame(game);
